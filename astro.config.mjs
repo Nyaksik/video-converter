@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,21 +12,21 @@ export default defineConfig({
         '@ffmpeg/ffmpeg',
         '@ffmpeg/core',
         '@ffmpeg/util',
-        '@ffmpeg/core-mt'
-      ]
+        '@ffmpeg/core-mt',
+      ],
     },
 
     worker: {
-      format: 'es'
+      format: 'es',
     },
 
     server: {
       headers: {
         'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp'
-      }
+        'Cross-Origin-Embedder-Policy': 'require-corp',
+      },
     },
 
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
   },
 });
