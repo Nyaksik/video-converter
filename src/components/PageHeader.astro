@@ -1,0 +1,13 @@
+---
+import { Image } from 'astro:assets'
+import LogoImage from '@/assets/images/logo.png'
+---
+
+<header class="py-5">
+    <div class="container flex items-center gap-5 lg:gap-10">
+        <a href="/">
+            <Image class="object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoImage} alt="Logo" width="200" height="200" />
+        </a>
+    </div>
+    <hr class="opacity-40">
+</header>

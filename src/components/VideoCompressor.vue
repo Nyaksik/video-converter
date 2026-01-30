@@ -54,7 +54,7 @@ const getArgs = computed(() => {
   ]
 })
 
-const getConversionConfig = computed<{ video: ConversionVideoOptions, audio: ConversionAudioOptions }>(() => {
+const getConversionConfig = computed(() => {
   const scaleMap = {
     '1080p': { width: 1920, height: 1080 },
     '720p': { width: 1280, height: 720 },
@@ -79,7 +79,7 @@ const getConversionConfig = computed<{ video: ConversionVideoOptions, audio: Con
       bitrate: 128000,
       codec: 'aac',
     },
-  }
+  } as { video: ConversionVideoOptions, audio: ConversionAudioOptions }
 })
 
 async function compressVideoWebcodecs() {
@@ -120,7 +120,7 @@ async function compressVideoWebcodecs() {
     console.log('Size:', mp4Buffer?.byteLength)
   }
   catch (error) {
-    console.error('💥 Mediabunny error:', error)
+    console.error('Mediabunny error:', error)
     status.value = 'idle'
     progress.value = 0
   }
@@ -147,8 +147,6 @@ async function loadFFmpeg() {
 }
 
 async function compressVideo() {
-  console.log('🚀 START compressVideo')
-
   if (!inputFile.value || !ffmpeg?.loaded) return
 
   status.value = 'processing'
@@ -160,18 +158,18 @@ async function compressVideo() {
     const outputName = 'output.mp4'
 
     await ffmpeg.writeFile(inputName, await fetchFile(inputFile.value))
-    console.log('✅ File written')
+    console.log('File written')
 
     await ffmpeg.exec(['-i', inputName, ...getArgs.value, '-y', outputName])
-    console.log('✅ Compress finished')
+    console.log('Compress finished')
 
     const data = await ffmpeg.readFile(outputName)
     outputBlob.value = new Blob([data], { type: 'video/mp4' })
     status.value = 'done'
-    console.log('🎉 PRESET SUCCESS! Size:', data.length)
+    console.log('PRESET SUCCESS! Size:', data.length)
   }
   catch (error) {
-    console.error('💥 Error:', error)
+    console.error('Error:', error)
     status.value = 'idle'
   }
 }
@@ -202,13 +200,10 @@ function handleFile(e: Event) {
 </script>
 
 <template>
-  <main class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
     <div class="max-w-2xl mx-auto space-y-8">
       <!-- Header -->
       <div class="text-center">
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-          🎬 Видео Сжатик
-        </h1>
         <p class="text-lg text-slate-600">
           Сожми видео до нужного размера за секунды
         </p>
@@ -360,5 +355,5 @@ function handleFile(e: Event) {
         </CardContent>
       </Card>
     </div>
-  </main>
+  </div>
 </template>

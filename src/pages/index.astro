@@ -1,18 +1,30 @@
 ---
-import '../styles/global.css';
-import VideoCompressor from '@/components/VideoCompressor.vue';
+import Badge from '@/components/ui/badge/Badge.vue';
+import Button from '@/components/ui/button/Button.vue';
+import Default from '../layouts/Default.astro'
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <VideoCompressor client:load />
-  </body>
-</html>
+<Default title="Главная">
+  <section class="container pt-[10%]">
+    <h1 class="text-6xl lg:text-7xl font-bold mb-5 text-center">Сжимай видео в&nbsp;браузере за&nbsp;секунды!</h1>
+    <div class="flex flex-wrap gap-1 justify-center items-center mb-8">
+      <Badge variant="secondary">
+        Без водяных знаков
+      </Badge>
+      <Badge variant="secondary">
+        Без загрузки видео на&nbsp;сервер
+      </Badge>
+      <Badge variant="secondary">
+        Бесплатно
+      </Badge>
+      <Badge variant="secondary">
+        До&nbsp;90% экономии размера
+      </Badge>
+    </div>
+    <div class="flex justify-center">
+      <Button as="a" href="/compressor" size="lg" class="text-2xl px-12 h-16">
+        Сжать видео сейчас!
+      </Button>
+    </div>
+  </section>
+</Default>
