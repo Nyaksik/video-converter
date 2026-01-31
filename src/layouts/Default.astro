@@ -1,6 +1,8 @@
 ---
 import '@/styles/global.css'
+import 'vue-sonner/style.css'
 
+import { Toaster } from '@/components/ui/sonner'
 import PageHeader from '@/components/PageHeader.astro'
 
 const { title } = Astro.props
@@ -21,5 +23,6 @@ const { title } = Astro.props
 <main class="grow">
     <slot></slot>
 </main>
+<Toaster client:only="vue" />
 </body>
 </html>

@@ -168,6 +168,6 @@
   }
   .container {
     @apply mx-auto;
-    width: min(calc(100% - 120px), 1200px);
+    width: min(calc(100% - 40px), 1200px) !important;
   }
 }
