@@ -31,6 +31,54 @@ export function useVideoCompressor() {
   const quality = ref<Quality>(Quality.Medium)
   const resolution = ref<Resolution>('og')
 
+  const availableCodecs = computed(() => {
+    const codecs = [
+      { value: 'h264', label: 'H.264', supported: supportedCodecs.value.has('h264') },
+      { value: 'vp9', label: 'VP9', supported: supportedCodecs.value.has('vp9') },
+      { value: 'av1', label: 'AV1', supported: supportedCodecs.value.has('av1') },
+    ]
+
+    return codecs.filter(c => c.supported)
+  })
+
+  const availableResolutions = computed(() => {
+    if (!videoMetadata.value) {
+      return [{ value: 'orig', label: 'Оригинал', disabled: false }]
+    }
+
+    const { height } = videoMetadata.value
+
+    const resolutions: ResolutionItem[] = [
+      {
+        value: 'og',
+        label: 'Оригинал',
+        disabled: false,
+        pixels: height,
+      },
+      { value: '1080p', label: '1080p', disabled: height < 1080, pixels: 1080 },
+      { value: '720p', label: '720p', disabled: height < 720, pixels: 720 },
+      { value: '480p', label: '480p', disabled: height < 480, pixels: 480 },
+    ]
+
+    return resolutions.filter(r => !r.disabled)
+  })
+
+  const compressionInfo = computed(() => {
+    if (!videoMetadata.value || !inputFile.value) return null
+
+    const config = getConversionConfig()
+    // const targetRes = getTargetResolution()
+    const videoBitrate = (config.video.bitrate as number) ?? 0
+    const audioBitrate = (config.audio.bitrate as number) ?? 0
+
+    const estimatedSize = (
+      (videoBitrate + audioBitrate)
+      * videoMetadata.value.duration / 8
+    ) * 1.25
+
+    return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
+  })
+
   watch(inputFile, async (file) => {
     if (!file) {
       videoMetadata.value = null
@@ -120,38 +168,6 @@ export function useVideoCompressor() {
 
     console.log('Supported codecs:', Array.from(supported))
   }
-
-  const availableCodecs = computed(() => {
-    const codecs = [
-      { value: 'h264', label: 'H.264', supported: supportedCodecs.value.has('h264') },
-      { value: 'vp9', label: 'VP9', supported: supportedCodecs.value.has('vp9') },
-      { value: 'av1', label: 'AV1', supported: supportedCodecs.value.has('av1') },
-    ]
-
-    return codecs.filter(c => c.supported)
-  })
-
-  const availableResolutions = computed(() => {
-    if (!videoMetadata.value) {
-      return [{ value: 'orig', label: 'Оригинал', disabled: false }]
-    }
-
-    const { height } = videoMetadata.value
-
-    const resolutions: ResolutionItem[] = [
-      {
-        value: 'og',
-        label: 'Оригинал',
-        disabled: false,
-        pixels: height,
-      },
-      { value: '1080p', label: '1080p', disabled: height < 1080, pixels: 1080 },
-      { value: '720p', label: '720p', disabled: height < 720, pixels: 720 },
-      { value: '480p', label: '480p', disabled: height < 480, pixels: 480 },
-    ]
-
-    return resolutions.filter(r => !r.disabled)
-  })
 
   function getTargetResolution(): { width: number, height: number } {
     if (!videoMetadata.value) {
@@ -243,7 +259,7 @@ export function useVideoCompressor() {
     }
   }
 
-  const getArgs = computed(() => {
+  function getFFmpegArgs() {
     const targetRes = getTargetResolution()
 
     const crfMap = {
@@ -276,23 +292,7 @@ export function useVideoCompressor() {
       '-b:a', audioBitrate,
       '-movflags', '+faststart',
     ]
-  })
-
-  const compressionInfo = computed(() => {
-    if (!videoMetadata.value || !inputFile.value) return null
-
-    const config = getConversionConfig()
-    // const targetRes = getTargetResolution()
-    const videoBitrate = (config.video.bitrate as number) ?? 0
-    const audioBitrate = (config.audio.bitrate as number) ?? 0
-
-    const estimatedSize = (
-      (videoBitrate + audioBitrate)
-      * videoMetadata.value.duration / 8
-    ) * 1.25
-
-    return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
-  })
+  }
 
   async function compressVideoWebcodecs() {
     if (!inputFile.value) return
@@ -372,7 +372,7 @@ export function useVideoCompressor() {
       const outputName = 'output.mp4'
 
       await ffmpeg.writeFile(inputName, await fetchFile(inputFile.value))
-      await ffmpeg.exec(['-i', inputName, ...getArgs.value, '-y', outputName])
+      await ffmpeg.exec(['-i', inputName, ...getFFmpegArgs(), '-y', outputName])
 
       const data = await ffmpeg.readFile(outputName)
       outputBlob.value = new Blob([data], { type: 'video/mp4' })
