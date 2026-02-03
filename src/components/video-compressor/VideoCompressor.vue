@@ -203,6 +203,7 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
                       Перегенерировать
                     </Button>
                     <Button
+                      class="relative cursor-pointer"
                       variant="destructive"
                       as="label"
                     >
