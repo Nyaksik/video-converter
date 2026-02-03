@@ -37,6 +37,7 @@
     "eslint-plugin-vue": "^10.7.0",
     "eslint-stylistic": "0.0.0-0",
     "globals": "^17.2.0",
+    "sharp": "^0.34.5",
     "tw-animate-css": "^1.4.0",
     "typescript-eslint": "^8.54.0",
     "vue-eslint-parser": "^10.2.0"
