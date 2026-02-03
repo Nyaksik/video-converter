@@ -1,0 +1,50 @@
+name: Deploy to K3s
+on:
+  workflow_run:
+    workflows: ["Build & Push Docker"]
+    types: [completed]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to K3s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          cat > k8s.yaml << EOF
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: astro-app
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: astro
+            template:
+              metadata:
+                labels:
+                  app: astro
+              spec:
+                containers:
+                - name: astro
+                  image: ghcr.io/${{ github.repository }}:latest
+                  ports:
+                  - containerPort: 80
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: astro-service
+          spec:
+            selector:
+              app: astro
+            ports:
+            - port: 80
+              targetPort: 80
+            type: LoadBalancer
+          EOF
+          
+          kubectl apply -f k8s.yaml
