@@ -8,10 +8,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
       - name: Build Astro
-        run: |
-          npm ci
-          npm run build
+        run: npm run build
 
       - name: Login to GHCR
         uses: docker/login-action@v3
