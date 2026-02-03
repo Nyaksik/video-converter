@@ -1,4 +1,4 @@
-name: Build & Push Docker (PNPM)
+name: Build & Push Docker
 on:
   push:
     branches: [main]

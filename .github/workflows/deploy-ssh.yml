@@ -1,4 +1,4 @@
-name: Deploy to K3s (SSH)
+name: Deploy to K3s
 on:
   workflow_run:
     workflows: ["Build & Push Docker"]
