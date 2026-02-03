@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH (GitOps)
+      - name: ✅ Deploy to K3s
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}
@@ -17,6 +17,20 @@ jobs:
           script: |
             cd /tmp
             rm -rf video-converter
-            git clone https://${{ github.actor }}:${{ secrets.TOKEN }}@github.com/Nyaksik/video-converter.git
+            git clone https://Nyaksik:${{ secrets.TOKEN }}@github.com/Nyaksik/video-converter.git
+            
+            kubectl create secret docker-registry ghcr-secret \
+              --docker-server=ghcr.io \
+              --docker-username=Nyaksik \
+              --docker-password="${{ secrets.TOKEN }}" \
+              --docker-email="noreply@github.com" \
+              --dry-run=client -o yaml | kubectl apply -f -
+            
+            kubectl delete deployment astro-app --ignore-not-found=true
+            kubectl delete svc astro-service --ignore-not-found=true
+            
             cd video-converter/k8s
             kubectl apply -f .
+            
+            kubectl rollout status deployment/astro-app --timeout=120s
+            kubectl get svc astro-service -o wide
