@@ -1,4 +1,4 @@
-name: Deploy to K3s
+name: Deploy to K8s
 on:
   workflow_run:
     workflows: ["Build & Push Docker"]
@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: ✅ Deploy to K3s
+      - name: ✅ Deploy to K8s
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}
