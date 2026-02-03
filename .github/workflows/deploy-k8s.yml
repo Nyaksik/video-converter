@@ -30,7 +30,7 @@ jobs:
               spec:
                 containers:
                 - name: astro
-                  image: ghcr.io/${{ github.repository }}:latest
+                  image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
                   ports:
                   - containerPort: 80
           ---
