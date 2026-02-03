@@ -17,8 +17,6 @@ jobs:
           script: |
             cd /tmp
             rm -rf video-converter
-            git clone --depth 1 https://github.com/nyaksik/video-converter.git
+            git clone https://${{ github.actor }}:${{ secrets.TOKEN }}@github.com/Nyaksik/video-converter.git
             cd video-converter/k8s
             kubectl apply -f .
-            kubectl rollout status deployment/astro-app
-            kubectl get svc astro-service
