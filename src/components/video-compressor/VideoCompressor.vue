@@ -9,8 +9,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Badge } from '@/components/ui/badge'
+import { watch } from 'vue'
 
 const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, handleCompress, handleFile, downloadVideo } = useVideoCompressor()
+
+watch(compressionInfo, (v) => {
+  console.log(v)
+})
 </script>
 
 <template>
