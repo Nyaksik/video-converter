@@ -8,13 +8,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
+      - name: Deploy via SSH (GitOps)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            kubectl set image deployment/astro-app astro=${{ github.event.head_commit.message }}
+            cd /tmp
+            rm -rf video-converter
+            git clone --depth 1 https://github.com/Nyaksik/video-converter.git
+            cd video-converter/k8s
+            kubectl apply -f .
             kubectl rollout status deployment/astro-app
             kubectl get svc astro-service
