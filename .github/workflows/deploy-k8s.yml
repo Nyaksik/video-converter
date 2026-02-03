@@ -1,55 +1,20 @@
-name: Deploy to K3s
+name: Deploy to K3s (SSH)
 on:
   workflow_run:
     workflows: ["Build & Push Docker"]
     types: [completed]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set lowercase owner name
-        run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
-        env:
-          OWNER: ${{ github.repository_owner }}
-
-      - name: Deploy to K3s
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-        run: |
-          cat > k8s.yaml << EOF
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: astro-app
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: astro
-            template:
-              metadata:
-                labels:
-                  app: astro
-              spec:
-                containers:
-                - name: astro
-                  image: ghcr.io/${{ env.OWNER_LC }}/video-converter:latest
-                  ports:
-                  - containerPort: 80
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: astro-service
-          spec:
-            selector:
-              app: astro
-            ports:
-            - port: 80
-              targetPort: 80
-            type: LoadBalancer
-          EOF
-          
-          kubectl apply -f k8s.yaml
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            kubectl set image deployment/astro-app astro=${{ github.event.head_commit.message }}
+            kubectl rollout status deployment/astro-app
+            kubectl get svc astro-service
