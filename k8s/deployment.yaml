@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: clipcrush
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clipcrush
+  namespace: clipcrush
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clipcrush
+  template:
+    metadata:
+      labels:
+        app: clipcrush
+    spec:
+      containers:
+        - name: clipcrush
+          image: ghcr.io/nyaksik/video-converter:latest
+          ports:
+            - containerPort: 80
+          # Resource limits - не даём поду сожрать всю память
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          # Liveness probe - проверяет что nginx живой
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Readiness probe - проверяет что под готов принимать трафик
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+      imagePullSecrets:
+        - name: ghcr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clipcrush
+  namespace: clipcrush
+spec:
+  selector:
+    app: clipcrush
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: clipcrush
+  namespace: clipcrush
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    traefik.ingress.kubernetes.io/redirect-entry: "https"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - clipcrush.online
+      secretName: clipcrush-tls
+  rules:
+    - host: clipcrush.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: clipcrush
+                port:
+                  number: 80

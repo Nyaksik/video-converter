@@ -33,5 +33,24 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-            kubectl apply -f /opt/k8s/deployment.yaml
+            mkdir -p /tmp/k8s-deploy
+
+      - name: Copy k8s manifests to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "k8s/deployment.yaml"
+          target: "/tmp/k8s-deploy/"
+
+      - name: Apply k8s manifests
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            kubectl apply -f /tmp/k8s-deploy/k8s/deployment.yaml
             kubectl rollout restart deployment/clipcrush -n clipcrush
