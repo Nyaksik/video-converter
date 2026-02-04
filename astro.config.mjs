@@ -8,14 +8,16 @@ import { loadEnv } from 'vite'
 
 import compressor from 'astro-compressor';
 
-const { PUBLIC_SITE_URL, PUBLIC_SITE_NAME } = loadEnv(process.env.NODE_ENV ?? '', process.cwd(), "");
+const { PUBLIC_SITE_URL, PUBLIC_SITE_NAME, PUBLIC_INFO_EMAIL, PUBLIC_METRIKA } = loadEnv(process.env.NODE_ENV ?? '', process.cwd(), "");
 
 // https://astro.build/config
 export default defineConfig({
   site: PUBLIC_SITE_URL,
   env: {
     schema: {
-      PUBLIC_SITE_NAME: envField.string({ context: 'server', access: 'public', default: PUBLIC_SITE_NAME })
+      PUBLIC_SITE_NAME: envField.string({ context: 'server', access: 'public', default: PUBLIC_SITE_NAME }),
+      PUBLIC_INFO_EMAIL: envField.string({ context: 'server', access: 'public', default: PUBLIC_INFO_EMAIL }),
+      PUBLIC_METRIKA: envField.boolean({ context: 'server', access: 'public', default: PUBLIC_METRIKA === 'true'  })
     }
   },
   integrations: [vue(), robotsTxt(), sitemap(), compressor()],
