@@ -24,6 +24,9 @@ jobs:
         with:
           push: true
           tags: ghcr.io/nyaksik/video-converter:latest
+          build-args: |
+            PUBLIC_SITE_URL=${{ secrets.PUBLIC_SITE_URL }}
+            PUBLIC_SITE_NAME=${{ secrets.PUBLIC_SITE_NAME }}
 
       - name: Deploy to k3s
         uses: appleboy/ssh-action@v1.0.0
