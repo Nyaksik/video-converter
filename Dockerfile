@@ -8,6 +8,12 @@ RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
+ARG PUBLIC_SITE_URL
+ARG PUBLIC_SITE_NAME
+
+ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL
+ENV PUBLIC_SITE_NAME=$PUBLIC_SITE_NAME
+
 RUN pnpm build
 
 FROM nginx:alpine AS production
