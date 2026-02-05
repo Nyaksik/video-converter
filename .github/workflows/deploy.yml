@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "k8s/deployment.yaml"
+          source: "k8s/*"
           target: "/tmp/k8s-deploy/"
           overwrite: true
 
