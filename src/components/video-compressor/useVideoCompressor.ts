@@ -2,8 +2,9 @@ import { computed, ref, watch } from 'vue'
 import {
   ALL_FORMATS,
   BlobSource, BufferTarget, Conversion,
-  type ConversionAudioOptions,
-  type ConversionVideoOptions, Input, Mp4OutputFormat, Output,
+  Input,
+  Mp4OutputFormat,
+  Output,
   type ConversionOptions,
 } from 'mediabunny'
 import { type Codec, Quality, type Resolution, type ResolutionItem, Status, type VideoMetaData } from './types.ts'
@@ -36,6 +37,7 @@ export function useVideoCompressor() {
   const trimStart = ref(0)
   const trimEnd = ref(0)
   const videoRef = ref<HTMLVideoElement>()
+  const removeAudio = ref(false)
 
   const availableCodecs = computed(() => {
     const codecs = [
@@ -72,17 +74,18 @@ export function useVideoCompressor() {
   const compressionInfo = computed(() => {
     if (!videoMetadata.value || !inputFile.value) return null
 
-    const config = getConversionConfig()
+    // const config = getConversionConfig()
     // const targetRes = getTargetResolution()
-    const videoBitrate = (config.video.bitrate as number) ?? 0
-    const audioBitrate = (config.audio.bitrate as number) ?? 0
-
-    const estimatedSize = (
-      (videoBitrate + audioBitrate)
-      * videoMetadata.value.duration / 8
-    ) * 1.25
-
-    return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
+    // const videoBitrate = (config.video?.bitrate as number) ?? 0
+    // const audioBitrate = (config.audio?.bitrate as number) ?? 0
+    //
+    // const estimatedSize = (
+    //   (videoBitrate + audioBitrate)
+    //   * videoMetadata.value.duration / 8
+    // ) * 1.25
+    //
+    // return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
+    return 0
   })
 
   const trimStartComputed = computed({
@@ -119,14 +122,12 @@ export function useVideoCompressor() {
       URL.revokeObjectURL(previewUrl.value)
     }
 
-    if (!file) {
-      videoMetadata.value = null
-      previewUrl.value = null
-      trimStart.value = 0
-      trimEnd.value = 0
+    if (!file)
       return
-    }
 
+    trimStart.value = 0
+    trimEnd.value = 0
+    removeAudio.value = false
     previewUrl.value = URL.createObjectURL(file)
 
     await Promise.all([
@@ -135,7 +136,7 @@ export function useVideoCompressor() {
     ])
 
     if (videoMetadata.value) {
-      trimEnd.value = videoMetadata.value.duration
+      trimEnd.value = videoMetadata.value?.duration
     }
   })
 
@@ -271,11 +272,7 @@ export function useVideoCompressor() {
     return Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
   }
 
-  function getConversionConfig(): {
-    video: ConversionVideoOptions
-    audio: ConversionAudioOptions
-    trim: ConversionOptions['trim']
-  } {
+  function getConversionConfig(): Partial<Pick<ConversionOptions, 'video' | 'audio' | 'trim'>> {
     const targetRes = getTargetResolution()
     const videoBitrate = getTargetBitrate(targetRes.width, targetRes.height)
 
@@ -305,6 +302,7 @@ export function useVideoCompressor() {
         bitrate: audioBitrate,
         codec: 'aac',
         sampleRate: 48000,
+        discard: removeAudio.value,
       },
       trim: {
         start: trimStart.value,
@@ -332,11 +330,16 @@ export function useVideoCompressor() {
       ? ['-vf', `scale=${targetRes.width}:${targetRes.height}:flags=bicubic`]
       : []
 
-    const audioBitrate = quality.value === Quality.Low
-      ? '96k'
-      : quality.value === Quality.High
-        ? '192k'
-        : '128k'
+    const audioArgs = removeAudio.value
+      ? ['-an']
+      : [
+          '-c:a', 'aac',
+          '-b:a', quality.value === Quality.Low
+            ? '96k'
+            : quality.value === Quality.High
+              ? '192k'
+              : '128k',
+        ]
 
     return [
       ...codecArgs,
@@ -344,8 +347,7 @@ export function useVideoCompressor() {
       '-to', trimEnd.value.toString(),
       '-crf', crfMap[quality.value],
       ...scaleArgs,
-      '-c:a', 'aac',
-      '-b:a', audioBitrate,
+      ...audioArgs,
       '-movflags', '+faststart',
     ]
   }
@@ -510,6 +512,7 @@ export function useVideoCompressor() {
     trimEndComputed,
     videoMetadata,
     videoRef,
+    removeAudio,
 
     handleCompress,
     downloadVideo,

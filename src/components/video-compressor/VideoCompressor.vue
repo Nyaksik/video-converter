@@ -11,8 +11,10 @@ import { ButtonGroup } from '@/components/ui/button-group'
 import { Badge } from '@/components/ui/badge'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
-const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, previewUrl, trimEndComputed, trimStartComputed, videoMetadata, videoRef, handleCompress, handleFile, downloadVideo, updateTrimValues } = useVideoCompressor()
+const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, previewUrl, trimEndComputed, trimStartComputed, videoMetadata, videoRef, removeAudio, handleCompress, handleFile, downloadVideo, updateTrimValues } = useVideoCompressor()
 </script>
 
 <template>
@@ -63,7 +65,6 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
               ref="videoRef"
               :src="previewUrl"
               controls
-              muted
               class="rounded-xl"
             />
             <Slider
@@ -88,6 +89,20 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
                 :max="videoMetadata?.duration"
               />
             </div>
+
+            <Button
+              class="relative cursor-pointer w-full"
+              variant="destructive"
+              as="label"
+            >
+              <input
+                type="file"
+                accept="video/mp4,video/quicktime,video/webm,video/x-matroska"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                @change="handleFile"
+              >
+              Новое видео
+            </Button>
           </CardContent>
         </Card>
 
@@ -171,6 +186,17 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
               </RadioGroup>
             </div>
 
+            <div>
+              <label class="text-sm font-medium mb-1 block">Аудио</label>
+              <div class="flex items-center space-x-2">
+                <Switch
+                  id="remove-audio"
+                  v-model="removeAudio"
+                />
+                <Label for="remove-audio">Удалить</Label>
+              </div>
+            </div>
+
             <Transition mode="out-in">
               <Button
                 v-if="outputBlob && status === Status.Done"
@@ -210,7 +236,7 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
       <Transition>
         <div
           v-show="status === Status.Processing || status === Status.Done"
-          class="sticky left-0 bottom-0"
+          class="fixed left-0 bottom-0 w-full"
         >
           <Card class="relative w-full m-0 rounded-none">
             <CardContent>
