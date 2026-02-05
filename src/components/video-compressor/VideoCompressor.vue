@@ -9,13 +9,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Badge } from '@/components/ui/badge'
-import { watch } from 'vue'
+import { Slider } from '@/components/ui/slider'
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
-const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, handleCompress, handleFile, downloadVideo } = useVideoCompressor()
-
-watch(compressionInfo, (v) => {
-  console.log(v)
-})
+const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, previewUrl, trimEndComputed, trimStartComputed, videoMetadata, videoRef, removeAudio, handleCompress, handleFile, downloadVideo, updateTrimValues } = useVideoCompressor()
 </script>
 
 <template>
@@ -30,8 +29,8 @@ watch(compressionInfo, (v) => {
       </p>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-5 items-start">
-      <Card>
+    <Transition mode="out-in">
+      <Card v-if="!inputFile">
         <CardHeader>
           <CardTitle>Добавь видео</CardTitle>
           <CardDescription>Поддержка MP4, MOV, WebM, MKV</CardDescription>
@@ -46,137 +45,198 @@ watch(compressionInfo, (v) => {
               @change="handleFile"
             >
             <p class="font-medium text-slate-700 mb-1">
-              {{ inputFile ? inputFile.name : 'Нажми или перетащи видео' }}
-            </p>
-            <p
-              v-if="inputFile"
-              class="text-sm text-slate-500"
-            >
-              {{ Math.round(inputFile.size / 1024 / 1024 * 100) / 100 }} MB
+              Нажми или перетащи видео
             </p>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Настройки сжатия</CardTitle>
-        </CardHeader>
-        <CardContent class="grid gap-5 relative">
-          <div>
-            <label class="text-sm font-medium mb-1 block">Кодек</label>
-            <RadioGroup
-              v-model="codec"
-              class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
-              :disabled="!inputFile || status === Status.Processing"
-            >
-              <FieldLabel
-                v-for="(item, index) in availableCodecs"
-                :key="index"
-                class="cursor-pointer"
-              >
-                <Field orientation="horizontal">
-                  <FieldContent>
-                    <FieldTitle>{{ item.label }}</FieldTitle>
-                  </FieldContent>
-                  <RadioGroupItem
-                    id="codec"
-                    :value="item.value"
-                  />
-                </Field>
-              </FieldLabel>
-            </RadioGroup>
-          </div>
-
-          <div>
-            <label class="text-sm font-medium mb-1 block">Сжатие</label>
-            <RadioGroup
-              v-model="quality"
-              class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
-              :disabled="!inputFile || status === Status.Processing"
-            >
-              <FieldLabel
-                v-for="(item, index) in availableQuality"
-                :key="index"
-                class="cursor-pointer"
-              >
-                <Field orientation="horizontal">
-                  <FieldContent>
-                    <FieldTitle>{{ item.label }}</FieldTitle>
-                  </FieldContent>
-                  <RadioGroupItem
-                    id="codec"
-                    :value="item.value"
-                  />
-                </Field>
-              </FieldLabel>
-            </RadioGroup>
-          </div>
-
-          <div>
-            <label class="text-sm font-medium mb-1 block">Разрешение</label>
-            <RadioGroup
-              v-model="resolution"
-              class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
-              :disabled="!inputFile || status === Status.Processing"
-            >
-              <FieldLabel
-                v-for="(item, index) in availableResolutions"
-                :key="index"
-                class="cursor-pointer"
-              >
-                <Field orientation="horizontal">
-                  <FieldContent>
-                    <FieldTitle>{{ item.label }}</FieldTitle>
-                  </FieldContent>
-                  <RadioGroupItem
-                    id="codec"
-                    :value="item.value"
-                  />
-                </Field>
-              </FieldLabel>
-            </RadioGroup>
-          </div>
-
-          <Transition mode="out-in">
-            <Button
-              v-if="outputBlob && status === Status.Done"
-              class="w-full"
-              size="lg"
-              @click="downloadVideo"
-            >
-              <Download class="size-4" />
-              Скачать {{ Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }} MB
-            </Button>
-            <Button
-              v-else
-              class="w-full"
-              size="lg"
-              :disabled="!inputFile || status === Status.Loading || status === Status.Processing"
-              @click="handleCompress"
-            >
-              <Loader2
-                v-if="status === Status.Loading || status === Status.Processing"
-                class="w-5 h-5 mr-2 animate-spin"
+      <div
+        v-else
+        class="grid lg:grid-cols-2 gap-5 items-start"
+      >
+        <Card v-if="previewUrl">
+          <CardHeader>
+            <CardTitle>{{ inputFile.name }}</CardTitle>
+            <CardDescription>{{ Math.round(inputFile.size / 1024 / 1024 * 100) / 100 }} MB</CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-4 grow">
+            <video
+              ref="videoRef"
+              :src="previewUrl"
+              controls
+              class="rounded-xl"
+            />
+            <Slider
+              class="mb-5"
+              :model-value="[trimStartComputed, trimEndComputed]"
+              :default-value="[0, videoMetadata?.duration ?? 1]"
+              :max="videoMetadata?.duration"
+              :step="0.001"
+              @update:model-value="updateTrimValues"
+            />
+            <div class="grid grid-cols-2 gap-5">
+              <Input
+                v-model.number="trimStartComputed"
+                type="number"
+                :min="0"
+                :max="videoMetadata?.duration"
               />
-              <template v-if="status === Status.Loading" />
-              <template v-else-if="status === Status.Processing">
-                Обработка {{ progress }}&percnt;
-              </template>
-              <template v-else>
-                Сжать видео
-              </template>
+              <Input
+                v-model.number="trimEndComputed"
+                type="number"
+                :min="0"
+                :max="videoMetadata?.duration"
+              />
+            </div>
+
+            <Button
+              class="relative cursor-pointer w-full"
+              variant="destructive"
+              as="label"
+            >
+              <input
+                type="file"
+                accept="video/mp4,video/quicktime,video/webm,video/x-matroska"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                @change="handleFile"
+              >
+              Новое видео
             </Button>
-          </Transition>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Настройки сжатия</CardTitle>
+          </CardHeader>
+          <CardContent class="grid gap-5 relative">
+            <div>
+              <label class="text-sm font-medium mb-1 block">Кодек</label>
+              <RadioGroup
+                v-model="codec"
+                class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
+                :disabled="!inputFile || status === Status.Processing"
+              >
+                <FieldLabel
+                  v-for="(item, index) in availableCodecs"
+                  :key="index"
+                  class="cursor-pointer"
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{{ item.label }}</FieldTitle>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id="codec"
+                      :value="item.value"
+                    />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <label class="text-sm font-medium mb-1 block">Сжатие</label>
+              <RadioGroup
+                v-model="quality"
+                class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
+                :disabled="!inputFile || status === Status.Processing"
+              >
+                <FieldLabel
+                  v-for="(item, index) in availableQuality"
+                  :key="index"
+                  class="cursor-pointer"
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{{ item.label }}</FieldTitle>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id="codec"
+                      :value="item.value"
+                    />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <label class="text-sm font-medium mb-1 block">Разрешение</label>
+              <RadioGroup
+                v-model="resolution"
+                class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
+                :disabled="!inputFile || status === Status.Processing"
+              >
+                <FieldLabel
+                  v-for="(item, index) in availableResolutions"
+                  :key="index"
+                  class="cursor-pointer"
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{{ item.label }}</FieldTitle>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id="codec"
+                      :value="item.value"
+                    />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <label class="text-sm font-medium mb-1 block">Аудио</label>
+              <div class="flex items-center space-x-2">
+                <Switch
+                  id="remove-audio"
+                  v-model="removeAudio"
+                />
+                <Label for="remove-audio">Удалить</Label>
+              </div>
+            </div>
+
+            <Transition mode="out-in">
+              <Button
+                v-if="outputBlob && status === Status.Done"
+                class="w-full"
+                size="lg"
+                @click="downloadVideo"
+              >
+                <Download class="size-4" />
+                Скачать {{ Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }} MB
+              </Button>
+              <Button
+                v-else
+                class="w-full"
+                size="lg"
+                :disabled="!inputFile || status === Status.Loading || status === Status.Processing"
+                @click="handleCompress"
+              >
+                <Loader2
+                  v-if="status === Status.Loading || status === Status.Processing"
+                  class="w-5 h-5 mr-2 animate-spin"
+                />
+                <template v-if="status === Status.Loading" />
+                <template v-else-if="status === Status.Processing">
+                  Обработка {{ progress }}&percnt;
+                </template>
+                <template v-else>
+                  Сжать видео
+                </template>
+              </Button>
+            </Transition>
+          </CardContent>
+        </Card>
+      </div>
+    </Transition>
 
     <Teleport to="body">
       <Transition>
         <div
           v-show="status === Status.Processing || status === Status.Done"
-          class="sticky left-0 bottom-0"
+          class="fixed left-0 bottom-0 w-full"
         >
           <Card class="relative w-full m-0 rounded-none">
             <CardContent>

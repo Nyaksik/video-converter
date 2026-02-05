@@ -2,13 +2,16 @@ import { computed, ref, watch } from 'vue'
 import {
   ALL_FORMATS,
   BlobSource, BufferTarget, Conversion,
-  type ConversionAudioOptions,
-  type ConversionVideoOptions, Input, Mp4OutputFormat, Output,
+  Input,
+  Mp4OutputFormat,
+  Output,
+  type ConversionOptions,
 } from 'mediabunny'
 import { type Codec, Quality, type Resolution, type ResolutionItem, Status, type VideoMetaData } from './types.ts'
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
 import { toast } from 'vue-sonner'
+import { watchDebounced } from '@vueuse/core'
 
 export function useVideoCompressor() {
   const videoMetadata = ref<VideoMetaData | null>(null)
@@ -30,6 +33,11 @@ export function useVideoCompressor() {
   const codec = ref<Codec>('h264')
   const quality = ref<Quality>(Quality.Medium)
   const resolution = ref<Resolution>('og')
+  const previewUrl = ref<string | null>(null)
+  const trimStart = ref(0)
+  const trimEnd = ref(0)
+  const videoRef = ref<HTMLVideoElement>()
+  const removeAudio = ref(false)
 
   const availableCodecs = computed(() => {
     const codecs = [
@@ -66,28 +74,70 @@ export function useVideoCompressor() {
   const compressionInfo = computed(() => {
     if (!videoMetadata.value || !inputFile.value) return null
 
-    const config = getConversionConfig()
+    // const config = getConversionConfig()
     // const targetRes = getTargetResolution()
-    const videoBitrate = (config.video.bitrate as number) ?? 0
-    const audioBitrate = (config.audio.bitrate as number) ?? 0
-
-    const estimatedSize = (
-      (videoBitrate + audioBitrate)
-      * videoMetadata.value.duration / 8
-    ) * 1.25
-
-    return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
+    // const videoBitrate = (config.video?.bitrate as number) ?? 0
+    // const audioBitrate = (config.audio?.bitrate as number) ?? 0
+    //
+    // const estimatedSize = (
+    //   (videoBitrate + audioBitrate)
+    //   * videoMetadata.value.duration / 8
+    // ) * 1.25
+    //
+    // return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
+    return 0
   })
 
-  watch(inputFile, async (file) => {
-    if (!file) {
-      videoMetadata.value = null
-      return
+  const trimStartComputed = computed({
+    get() {
+      return trimStart.value
+    },
+    set(value) {
+      trimStart.value = Math.max(0, Math.min(value, videoMetadata.value?.duration ?? 0))
+    },
+  })
+  const trimEndComputed = computed({
+    get() {
+      return trimEnd.value
+    },
+    set(value) {
+      trimEnd.value = Math.max(0, Math.min(value, videoMetadata.value?.duration ?? 0))
+    },
+  })
+
+  watchDebounced(trimStartComputed, (v) => {
+    if (videoRef.value) {
+      videoRef.value.currentTime = v
     }
+  }, { debounce: 200 })
+
+  watchDebounced(trimEndComputed, (v) => {
+    if (videoRef.value) {
+      videoRef.value.currentTime = v
+    }
+  }, { debounce: 200 })
+
+  watch(inputFile, async (file, oldFile) => {
+    if (oldFile && previewUrl.value) {
+      URL.revokeObjectURL(previewUrl.value)
+    }
+
+    if (!file)
+      return
+
+    trimStart.value = 0
+    trimEnd.value = 0
+    removeAudio.value = false
+    previewUrl.value = URL.createObjectURL(file)
+
     await Promise.all([
       analyzeVideo(file),
       detectSupportedCodecs(),
     ])
+
+    if (videoMetadata.value) {
+      trimEnd.value = videoMetadata.value?.duration
+    }
   })
 
   async function analyzeVideo(file: File) {
@@ -222,10 +272,7 @@ export function useVideoCompressor() {
     return Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
   }
 
-  function getConversionConfig(): {
-    video: ConversionVideoOptions
-    audio: ConversionAudioOptions
-  } {
+  function getConversionConfig(): Partial<Pick<ConversionOptions, 'video' | 'audio' | 'trim'>> {
     const targetRes = getTargetResolution()
     const videoBitrate = getTargetBitrate(targetRes.width, targetRes.height)
 
@@ -255,6 +302,11 @@ export function useVideoCompressor() {
         bitrate: audioBitrate,
         codec: 'aac',
         sampleRate: 48000,
+        discard: removeAudio.value,
+      },
+      trim: {
+        start: trimStart.value,
+        end: trimEnd.value,
       },
     }
   }
@@ -278,18 +330,24 @@ export function useVideoCompressor() {
       ? ['-vf', `scale=${targetRes.width}:${targetRes.height}:flags=bicubic`]
       : []
 
-    const audioBitrate = quality.value === Quality.Low
-      ? '96k'
-      : quality.value === Quality.High
-        ? '192k'
-        : '128k'
+    const audioArgs = removeAudio.value
+      ? ['-an']
+      : [
+          '-c:a', 'aac',
+          '-b:a', quality.value === Quality.Low
+            ? '96k'
+            : quality.value === Quality.High
+              ? '192k'
+              : '128k',
+        ]
 
     return [
       ...codecArgs,
+      '-ss', trimStart.value.toString(),
+      '-to', trimEnd.value.toString(),
       '-crf', crfMap[quality.value],
       ...scaleArgs,
-      '-c:a', 'aac',
-      '-b:a', audioBitrate,
+      ...audioArgs,
       '-movflags', '+faststart',
     ]
   }
@@ -432,6 +490,11 @@ export function useVideoCompressor() {
     status.value = Status.Idle
   }
 
+  function updateTrimValues(values?: number[]) {
+    trimStartComputed.value = values?.[0] ?? 0
+    trimEndComputed.value = values?.[1] ?? videoMetadata.value?.duration ?? 1
+  }
+
   return {
     inputFile,
     outputBlob,
@@ -444,9 +507,16 @@ export function useVideoCompressor() {
     availableResolutions,
     availableQuality,
     compressionInfo,
+    previewUrl,
+    trimStartComputed,
+    trimEndComputed,
+    videoMetadata,
+    videoRef,
+    removeAudio,
 
     handleCompress,
     downloadVideo,
     handleFile,
+    updateTrimValues,
   }
 }
