@@ -57,6 +57,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            export KUBECONFIG=~/.kube/config
             kubectl apply -f /tmp/k8s-deploy/k8s/deployment.yaml
             kubectl rollout restart deployment/clipcrush -n clipcrush
