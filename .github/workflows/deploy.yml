@@ -59,4 +59,5 @@ jobs:
           script: |
             export KUBECONFIG=~/.kube/config
             kubectl apply -f /tmp/k8s-deploy/k8s/deployment.yaml
+            kubectl apply -f /tmp/k8s-deploy/k8s/uptime-kuma.yaml
             kubectl rollout restart deployment/clipcrush -n clipcrush
