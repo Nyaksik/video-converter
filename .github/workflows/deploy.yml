@@ -47,7 +47,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "k8s/*"
-          target: "/tmp/k8s-deploy/"
+          target: "~/k8s-deploy/"
           overwrite: true
 
       - name: Apply k8s manifests
@@ -58,6 +58,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             export KUBECONFIG=~/.kube/config
-            kubectl apply -f /tmp/k8s-deploy/k8s/deployment.yaml
-            kubectl apply -f /tmp/k8s-deploy/k8s/uptime-kuma.yaml
+            kubectl apply -f ~/k8s-deploy/k8s/deployment.yaml
+            kubectl apply -f ~/k8s-deploy/k8s/uptime-kuma.yaml
             kubectl rollout restart deployment/clipcrush -n clipcrush
