@@ -15,6 +15,7 @@
     "@ffmpeg/core": "^0.12.10",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@vite-pwa/astro": "^1.2.0",
     "@vueuse/core": "^14.1.0",
     "astro": "^5.16.16",
     "astro-compressor": "^1.2.0",
