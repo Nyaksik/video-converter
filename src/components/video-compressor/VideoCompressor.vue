@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import {
   Download,
-  Upload,
   Loader2,
   Repeat2,
+  Upload,
 } from 'lucide-vue-next'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
 import {
   Card,
   CardContent,
@@ -12,11 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
-import { Status } from './types.ts'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Field,
   FieldContent,
@@ -24,12 +23,15 @@ import {
   FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
-import { ButtonGroup } from '@/components/ui/button-group'
-import { Badge } from '@/components/ui/badge'
-import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
+import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
+
+import { Status } from './types.ts'
 
 const {
   inputFile,

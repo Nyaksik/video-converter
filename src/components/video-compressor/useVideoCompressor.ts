@@ -1,18 +1,23 @@
-import {
-  computed,
-  ref,
-  watch,
-} from 'vue'
+import { FFmpeg } from '@ffmpeg/ffmpeg'
+import { fetchFile } from '@ffmpeg/util'
+import { watchDebounced } from '@vueuse/core'
 import {
   ALL_FORMATS,
   BlobSource,
   BufferTarget,
   Conversion,
+  type ConversionOptions,
   Input,
   Mp4OutputFormat,
   Output,
-  type ConversionOptions,
 } from 'mediabunny'
+import {
+  computed,
+  ref,
+  watch,
+} from 'vue'
+import { toast } from 'vue-sonner'
+
 import {
   type Codec,
   Quality,
@@ -21,10 +26,6 @@ import {
   Status,
   type VideoMetaData,
 } from './types.ts'
-import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile } from '@ffmpeg/util'
-import { toast } from 'vue-sonner'
-import { watchDebounced } from '@vueuse/core'
 
 const availableQuality = [
   {

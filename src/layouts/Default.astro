@@ -1,12 +1,12 @@
 ---
 import '@/styles/global.css'
 import 'vue-sonner/style.css'
-
-import { PUBLIC_SITE_NAME, PUBLIC_METRIKA } from 'astro:env/server'
-import { Toaster } from '@/components/ui/sonner'
-import PageHeader from '@/components/PageHeader.astro'
-import PageFooter from '../components/PageFooter.astro'
 import { SEO } from 'astro-seo'
+import { PUBLIC_METRIKA, PUBLIC_SITE_NAME } from 'astro:env/server'
+
+import PageFooter from '@/components/PageFooter.astro'
+import PageHeader from '@/components/PageHeader.astro'
+import { Toaster } from '@/components/ui/sonner'
 
 const { title, description } = Astro.props
 

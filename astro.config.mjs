@@ -1,12 +1,12 @@
-// @ts-check
-import { defineConfig, envField } from 'astro/config'
+import sitemap from '@astrojs/sitemap'
 import vue from '@astrojs/vue'
 import tailwindcss from '@tailwindcss/vite'
-import robotsTxt from 'astro-robots-txt'
-import sitemap from '@astrojs/sitemap'
-import { loadEnv } from 'vite'
-import compressor from 'astro-compressor'
 import AstroPWA from '@vite-pwa/astro'
+import compressor from 'astro-compressor'
+import robotsTxt from 'astro-robots-txt'
+// @ts-check
+import { defineConfig, envField } from 'astro/config'
+import { loadEnv } from 'vite'
 
 const {
   PUBLIC_SITE_URL, PUBLIC_SITE_NAME, PUBLIC_INFO_EMAIL, PUBLIC_METRIKA,
