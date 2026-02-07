@@ -473,10 +473,16 @@ export function useVideoCompressor() {
 
     if (!file) return
 
-    const maxSize = 1024 * 1024 * 1024 // 1GB
-    if (file.size > maxSize) {
-      toast.error('Файл слишком большой (максимум 1GB)', { dismissible: true })
-      return
+    if ('memory' in performance) {
+      const memoryInfo = performance.memory
+      const availableMemory = memoryInfo?.jsHeapSizeLimit - memoryInfo?.usedJSHeapSize
+
+      if (file.size >= availableMemory) {
+        toast.error('Большой файл может вызвать проблемы с производительностью', { dismissible: true })
+      }
+    }
+    else if (file.size > 2 * 1024 * 1024 * 1024) {
+      toast.error('Большой файл может вызвать проблемы с производительностью', { dismissible: true })
     }
 
     const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska']
