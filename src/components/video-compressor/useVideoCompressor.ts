@@ -1,13 +1,26 @@
-import { computed, ref, watch } from 'vue'
+import {
+  computed,
+  ref,
+  watch,
+} from 'vue'
 import {
   ALL_FORMATS,
-  BlobSource, BufferTarget, Conversion,
+  BlobSource,
+  BufferTarget,
+  Conversion,
   Input,
   Mp4OutputFormat,
   Output,
   type ConversionOptions,
 } from 'mediabunny'
-import { type Codec, Quality, Resolution, type ResolutionItem, Status, type VideoMetaData } from './types.ts'
+import {
+  type Codec,
+  Quality,
+  Resolution,
+  type ResolutionItem,
+  Status,
+  type VideoMetaData,
+} from './types.ts'
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
 import { toast } from 'vue-sonner'

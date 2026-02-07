@@ -6,7 +6,9 @@
     "dev": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
@@ -39,6 +41,7 @@
     "astro-eslint-parser": "^1.2.2",
     "eslint": "^9.39.2",
     "eslint-plugin-astro": "^1.5.0",
+    "eslint-plugin-import-newlines": "^1.4.0",
     "eslint-plugin-vue": "^10.7.0",
     "eslint-stylistic": "0.0.0-0",
     "globals": "^17.2.0",
