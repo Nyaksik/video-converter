@@ -6,7 +6,10 @@
     "dev": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
@@ -39,14 +42,22 @@
     "astro-eslint-parser": "^1.2.2",
     "eslint": "^9.39.2",
     "eslint-plugin-astro": "^1.5.0",
+    "eslint-plugin-import-newlines": "^1.4.0",
+    "eslint-plugin-perfectionist": "^5.5.0",
+    "eslint-plugin-unused-imports": "^4.3.0",
     "eslint-plugin-vue": "^10.7.0",
     "eslint-stylistic": "0.0.0-0",
     "globals": "^17.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "sharp": "^0.34.5",
     "tw-animate-css": "^1.4.0",
     "typescript-eslint": "^8.54.0",
     "vite": "^7.3.1",
     "vue-eslint-parser": "^10.2.0"
+  },
+  "lint-staged": {
+    "*.{js,mjs,ts,vue,astro}": "eslint --fix"
   },
   "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
 }

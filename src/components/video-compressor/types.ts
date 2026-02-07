@@ -11,7 +11,13 @@ export enum Quality {
   Low,
 }
 
-export type Resolution = 'og' | '1080p' | '720p' | '480p'
+export enum Resolution {
+  OG,
+  FullHD,
+  HD,
+  SD,
+}
+
 export type Codec = 'h264' | 'vp9' | 'av1'
 
 export type VideoMetaData = {
@@ -24,6 +30,7 @@ export type VideoMetaData = {
 export type ResolutionItem = {
   value: Resolution
   label: string
+  description?: string
   disabled: boolean
-  pixels: number
+  pixels?: number
 }

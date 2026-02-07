@@ -1,8 +1,8 @@
 ---
+import VideoCompressor from '@/components/video-compressor/VideoCompressor.vue'
 import Default from '@/layouts/Default.astro'
-import VideoCompressor from '../components/video-compressor/VideoCompressor.vue';
 ---
 
 <Default title="Компрессор">
-    <VideoCompressor client:only="vue" />
+  <VideoCompressor client:only="vue" />
 </Default>

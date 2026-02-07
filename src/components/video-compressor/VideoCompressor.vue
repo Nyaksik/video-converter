@@ -1,20 +1,60 @@
 <script setup lang="ts">
-import { Download, Upload, Loader2, Repeat2 } from 'lucide-vue-next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
-import { Status } from './types.ts'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/field'
-import { ButtonGroup } from '@/components/ui/button-group'
-import { Badge } from '@/components/ui/badge'
-import { Slider } from '@/components/ui/slider'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+import {
+  Download,
+  Loader2,
+  Repeat2,
+  Upload,
+} from 'lucide-vue-next'
 
-const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, previewUrl, trimEndComputed, trimStartComputed, videoMetadata, videoRef, removeAudio, handleCompress, handleFile, downloadVideo, updateTrimValues } = useVideoCompressor()
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ButtonGroup } from '@/components/ui/button-group'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+  FieldTitle,
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
+import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
+
+import { Status } from './types.ts'
+
+const {
+  inputFile,
+  outputBlob,
+  availableCodecs,
+  availableQuality,
+  availableResolutions,
+  codec,
+  quality,
+  resolution,
+  status,
+  progress,
+  previewUrl,
+  trimEndComputed,
+  trimStartComputed,
+  videoMetadata,
+  videoRef,
+  removeAudio,
+  handleCompress,
+  handleFile,
+  downloadVideo,
+  updateTrimValues,
+} = useVideoCompressor()
 </script>
 
 <template>
@@ -176,6 +216,9 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
                   <Field orientation="horizontal">
                     <FieldContent>
                       <FieldTitle>{{ item.label }}</FieldTitle>
+                      <FieldDescription v-if="item.description">
+                        {{ item.description }}
+                      </FieldDescription>
                     </FieldContent>
                     <RadioGroupItem
                       id="codec"
@@ -187,13 +230,12 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
             </div>
 
             <div>
-              <label class="text-sm font-medium mb-1 block">Аудио</label>
               <div class="flex items-center space-x-2">
                 <Switch
                   id="remove-audio"
                   v-model="removeAudio"
                 />
-                <Label for="remove-audio">Удалить</Label>
+                <Label for="remove-audio">Удалить аудио</Label>
               </div>
             </div>
 
