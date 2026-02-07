@@ -7,32 +7,42 @@ import {
   Output,
   type ConversionOptions,
 } from 'mediabunny'
-import { type Codec, Quality, type Resolution, type ResolutionItem, Status, type VideoMetaData } from './types.ts'
+import { type Codec, Quality, Resolution, type ResolutionItem, Status, type VideoMetaData } from './types.ts'
 import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
 import { toast } from 'vue-sonner'
 import { watchDebounced } from '@vueuse/core'
 
-export function useVideoCompressor() {
-  const videoMetadata = ref<VideoMetaData | null>(null)
+const availableQuality = [
+  { value: Quality.High, label: 'Fast' },
+  { value: Quality.Medium, label: 'Balance' },
+  { value: Quality.Low, label: 'Strong' },
+]
 
-  const availableQuality = [
-    { value: Quality.High, label: 'Fast' },
-    { value: Quality.Medium, label: 'Balance' },
-    { value: Quality.Low, label: 'Strong' },
-  ]
+const resolutionMap: Record<string, { width: number, height: number }> = {
+  '1080p': { width: 1920, height: 1080 },
+  '720p': { width: 1280, height: 720 },
+  '480p': { width: 854, height: 480 },
+}
+
+const bitsPerPixel = {
+  [Quality.High]: 0.15,
+  [Quality.Medium]: 0.08,
+  [Quality.Low]: 0.05,
+}
+
+export function useVideoCompressor() {
+  let ffmpeg: FFmpeg | null = null
 
   const supportedCodecs = ref<Set<Codec>>(new Set(['h264']))
-
-  let ffmpeg: FFmpeg | null = null
+  const videoMetadata = ref<VideoMetaData | null>(null)
   const inputFile = ref<File | null>(null)
   const outputBlob = ref<Blob | null>(null)
   const progress = ref(0)
   const status = ref<Status>(Status.Idle)
-
   const codec = ref<Codec>('h264')
   const quality = ref<Quality>(Quality.Medium)
-  const resolution = ref<Resolution>('og')
+  const resolution = ref<Resolution>(Resolution.OG)
   const previewUrl = ref<string | null>(null)
   const trimStart = ref(0)
   const trimEnd = ref(0)
@@ -49,23 +59,24 @@ export function useVideoCompressor() {
     return codecs.filter(c => c.supported)
   })
 
-  const availableResolutions = computed(() => {
+  const availableResolutions = computed<ResolutionItem[]>(() => {
     if (!videoMetadata.value) {
-      return [{ value: 'orig', label: 'Оригинал', disabled: false }]
+      return [{ value: Resolution.OG, label: 'Оригинал', disabled: false }]
     }
 
-    const { height } = videoMetadata.value
+    const { height, width } = videoMetadata.value
 
     const resolutions: ResolutionItem[] = [
       {
-        value: 'og',
+        value: Resolution.OG,
         label: 'Оригинал',
+        description: `${width}x${height}`,
         disabled: false,
         pixels: height,
       },
-      { value: '1080p', label: '1080p', disabled: height < 1080, pixels: 1080 },
-      { value: '720p', label: '720p', disabled: height < 720, pixels: 720 },
-      { value: '480p', label: '480p', disabled: height < 480, pixels: 480 },
+      { value: Resolution.FullHD, label: '1080p', description: 'Full HD', disabled: height < 1080, pixels: 1080 },
+      { value: Resolution.HD, label: '720p', description: 'HD', disabled: height < 720, pixels: 720 },
+      { value: Resolution.SD, label: '480p', description: 'SD', disabled: height < 480, pixels: 480 },
     ]
 
     return resolutions.filter(r => !r.disabled)
@@ -226,14 +237,8 @@ export function useVideoCompressor() {
 
     const { width, height } = videoMetadata.value
 
-    if (resolution.value === 'og') {
+    if (resolution.value === Resolution.OG) {
       return { width, height }
-    }
-
-    const resolutionMap: Record<string, { width: number, height: number }> = {
-      '1080p': { width: 1920, height: 1080 },
-      '720p': { width: 1280, height: 720 },
-      '480p': { width: 854, height: 480 },
     }
 
     const target = resolutionMap[resolution.value]
@@ -260,13 +265,6 @@ export function useVideoCompressor() {
 
   function getTargetBitrate(width: number, height: number): number {
     const pixels = width * height
-
-    const bitsPerPixel = {
-      [Quality.High]: 0.15,
-      [Quality.Medium]: 0.08,
-      [Quality.Low]: 0.05,
-    }
-
     const targetBitrate = pixels * bitsPerPixel[quality.value]
 
     return Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
@@ -326,7 +324,7 @@ export function useVideoCompressor() {
         ? ['-c:v', 'libvpx-vp9', '-crf', '30']
         : ['-c:v', 'libx264', '-preset', 'medium'] // fallback
 
-    const scaleArgs = resolution.value !== 'og'
+    const scaleArgs = resolution.value !== Resolution.OG
       ? ['-vf', `scale=${targetRes.width}:${targetRes.height}:flags=bicubic`]
       : []
 
@@ -474,15 +472,15 @@ export function useVideoCompressor() {
     if (!file) return
 
     if ('memory' in performance) {
-      const memoryInfo = performance.memory
-      const availableMemory = memoryInfo?.jsHeapSizeLimit - memoryInfo?.usedJSHeapSize
+      const { jsHeapSizeLimit = 0, usedJSHeapSize = 0 } = performance.memory as { jsHeapSizeLimit?: number, usedJSHeapSize?: number }
+      const availableMemory = jsHeapSizeLimit - usedJSHeapSize
 
       if (file.size >= availableMemory) {
-        toast.error('Большой файл может вызвать проблемы с производительностью', { dismissible: true })
+        toast.warning('Недосточно памяти для обработки видео', { dismissible: true })
       }
     }
     else if (file.size > 2 * 1024 * 1024 * 1024) {
-      toast.error('Большой файл может вызвать проблемы с производительностью', { dismissible: true })
+      toast.warning('Большой файл может вызвать проблемы с производительностью', { dismissible: true })
     }
 
     const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska']

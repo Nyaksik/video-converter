@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
 import { Status } from './types.ts'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Field, FieldContent, FieldLabel, FieldTitle } from '@/components/ui/field'
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from '@/components/ui/field'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Badge } from '@/components/ui/badge'
 import { Slider } from '@/components/ui/slider'
@@ -176,6 +176,9 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
                   <Field orientation="horizontal">
                     <FieldContent>
                       <FieldTitle>{{ item.label }}</FieldTitle>
+                      <FieldDescription v-if="item.description">
+                        {{ item.description }}
+                      </FieldDescription>
                     </FieldContent>
                     <RadioGroupItem
                       id="codec"
@@ -187,13 +190,12 @@ const { inputFile, outputBlob, availableCodecs, availableQuality, availableResol
             </div>
 
             <div>
-              <label class="text-sm font-medium mb-1 block">Аудио</label>
               <div class="flex items-center space-x-2">
                 <Switch
                   id="remove-audio"
                   v-model="removeAudio"
                 />
-                <Label for="remove-audio">Удалить</Label>
+                <Label for="remove-audio">Удалить аудио</Label>
               </div>
             </div>
 
