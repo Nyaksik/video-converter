@@ -26,18 +26,35 @@ export default defineConfig([
   ...astro.configs['flat/recommended'],
 
   {
-    plugins: {
-      'import-newlines': importNewlines,
-    },
+    plugins: { 'import-newlines': importNewlines },
     languageOptions: {
       globals: {
         console: 'readonly',
         document: 'readonly',
         window: 'readonly',
+        process: 'readonly',
       },
     },
     rules: {
-      'import-newlines/enforce': ['error', { 'items': 2, 'max-len': 120 }],
+      'import-newlines/enforce': ['error', {
+        'items': 2,
+        'max-len': 120,
+      }],
+      '@stylistic/object-curly-newline': ['error', {
+        ObjectExpression: {
+          multiline: true,
+          minProperties: 2,
+        },
+        ObjectPattern: {
+          multiline: true,
+          minProperties: 3,
+        },
+        ExportDeclaration: {
+          multiline: true,
+          minProperties: 3,
+        },
+      }],
+      '@stylistic/object-property-newline': ['error', { allowAllPropertiesOnSameLine: false }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': 'off',
@@ -59,8 +76,6 @@ export default defineConfig([
 
   {
     files: ['**/*.astro'],
-    languageOptions: {
-      parser: astroParser,
-    },
+    languageOptions: { parser: astroParser },
   },
 ])

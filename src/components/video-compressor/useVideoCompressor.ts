@@ -27,15 +27,36 @@ import { toast } from 'vue-sonner'
 import { watchDebounced } from '@vueuse/core'
 
 const availableQuality = [
-  { value: Quality.High, label: 'Fast' },
-  { value: Quality.Medium, label: 'Balance' },
-  { value: Quality.Low, label: 'Strong' },
+  {
+    value: Quality.High,
+    label: 'Fast',
+  },
+  {
+    value: Quality.Medium,
+    label: 'Balance',
+  },
+  {
+    value: Quality.Low,
+    label: 'Strong',
+  },
 ]
 
-const resolutionMap: Record<string, { width: number, height: number }> = {
-  '1080p': { width: 1920, height: 1080 },
-  '720p': { width: 1280, height: 720 },
-  '480p': { width: 854, height: 480 },
+const resolutionMap: Record<string, {
+  width: number
+  height: number
+}> = {
+  '1080p': {
+    width: 1920,
+    height: 1080,
+  },
+  '720p': {
+    width: 1280,
+    height: 720,
+  },
+  '480p': {
+    width: 854,
+    height: 480,
+  },
 }
 
 const bitsPerPixel = {
@@ -64,9 +85,21 @@ export function useVideoCompressor() {
 
   const availableCodecs = computed(() => {
     const codecs = [
-      { value: 'h264', label: 'H.264', supported: supportedCodecs.value.has('h264') },
-      { value: 'vp9', label: 'VP9', supported: supportedCodecs.value.has('vp9') },
-      { value: 'av1', label: 'AV1', supported: supportedCodecs.value.has('av1') },
+      {
+        value: 'h264',
+        label: 'H.264',
+        supported: supportedCodecs.value.has('h264'),
+      },
+      {
+        value: 'vp9',
+        label: 'VP9',
+        supported: supportedCodecs.value.has('vp9'),
+      },
+      {
+        value: 'av1',
+        label: 'AV1',
+        supported: supportedCodecs.value.has('av1'),
+      },
     ]
 
     return codecs.filter(c => c.supported)
@@ -74,7 +107,11 @@ export function useVideoCompressor() {
 
   const availableResolutions = computed<ResolutionItem[]>(() => {
     if (!videoMetadata.value) {
-      return [{ value: Resolution.OG, label: 'Оригинал', disabled: false }]
+      return [{
+        value: Resolution.OG,
+        label: 'Оригинал',
+        disabled: false,
+      }]
     }
 
     const { height, width } = videoMetadata.value
@@ -87,9 +124,27 @@ export function useVideoCompressor() {
         disabled: false,
         pixels: height,
       },
-      { value: Resolution.FullHD, label: '1080p', description: 'Full HD', disabled: height < 1080, pixels: 1080 },
-      { value: Resolution.HD, label: '720p', description: 'HD', disabled: height < 720, pixels: 720 },
-      { value: Resolution.SD, label: '480p', description: 'SD', disabled: height < 480, pixels: 480 },
+      {
+        value: Resolution.FullHD,
+        label: '1080p',
+        description: 'Full HD',
+        disabled: height < 1080,
+        pixels: 1080,
+      },
+      {
+        value: Resolution.HD,
+        label: '720p',
+        description: 'HD',
+        disabled: height < 720,
+        pixels: 720,
+      },
+      {
+        value: Resolution.SD,
+        label: '480p',
+        description: 'SD',
+        disabled: height < 480,
+        pixels: 480,
+      },
     ]
 
     return resolutions.filter(r => !r.disabled)
@@ -243,15 +298,22 @@ export function useVideoCompressor() {
     console.log('Supported codecs:', Array.from(supported))
   }
 
-  function getTargetResolution(): { width: number, height: number } {
+  function getTargetResolution(): { width: number
+    height: number } {
     if (!videoMetadata.value) {
-      return { width: 1920, height: 1080 }
+      return {
+        width: 1920,
+        height: 1080,
+      }
     }
 
     const { width, height } = videoMetadata.value
 
     if (resolution.value === Resolution.OG) {
-      return { width, height }
+      return {
+        width,
+        height,
+      }
     }
 
     const target = resolutionMap[resolution.value]
@@ -485,7 +547,8 @@ export function useVideoCompressor() {
     if (!file) return
 
     if ('memory' in performance) {
-      const { jsHeapSizeLimit = 0, usedJSHeapSize = 0 } = performance.memory as { jsHeapSizeLimit?: number, usedJSHeapSize?: number }
+      const { jsHeapSizeLimit = 0, usedJSHeapSize = 0 } = performance.memory as { jsHeapSizeLimit?: number
+        usedJSHeapSize?: number }
       const availableMemory = jsHeapSizeLimit - usedJSHeapSize
 
       if (file.size >= availableMemory) {

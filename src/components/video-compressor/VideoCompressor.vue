@@ -31,7 +31,28 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 
-const { inputFile, outputBlob, availableCodecs, availableQuality, availableResolutions, compressionInfo, codec, quality, resolution, status, progress, previewUrl, trimEndComputed, trimStartComputed, videoMetadata, videoRef, removeAudio, handleCompress, handleFile, downloadVideo, updateTrimValues } = useVideoCompressor()
+const {
+  inputFile,
+  outputBlob,
+  availableCodecs,
+  availableQuality,
+  availableResolutions,
+  codec,
+  quality,
+  resolution,
+  status,
+  progress,
+  previewUrl,
+  trimEndComputed,
+  trimStartComputed,
+  videoMetadata,
+  videoRef,
+  removeAudio,
+  handleCompress,
+  handleFile,
+  downloadVideo,
+  updateTrimValues,
+} = useVideoCompressor()
 </script>
 
 <template>
