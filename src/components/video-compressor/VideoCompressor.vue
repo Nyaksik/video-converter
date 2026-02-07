@@ -65,7 +65,7 @@ const {
     </h1>
 
     <div class="text-center">
-      <p class="text-lg text-slate-600 mb-6">
+      <p class="text-lg mb-6">
         Сожми видео за секунды!
       </p>
     </div>
@@ -85,7 +85,7 @@ const {
               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               @change="handleFile"
             >
-            <p class="font-medium text-slate-700 mb-1">
+            <p class="font-medium mb-1">
               Нажми или перетащи видео
             </p>
           </div>

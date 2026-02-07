@@ -107,6 +107,10 @@ export default defineConfig([
   {
     files: ['**/*.astro'],
     languageOptions: { parser: astroParser },
-    rules: { '@stylistic/jsx-tag-spacing': 'off' },
+    rules: {
+      '@stylistic/jsx-tag-spacing': 'off',
+      '@stylistic/jsx-one-expression-per-line': 'off',
+      '@stylistic/indent-binary-ops': 'off',
+    },
   },
 ])

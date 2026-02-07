@@ -32,6 +32,14 @@ const metrikaScript = `
     <meta name="keywords" content="сжатие видео, webcodecs, video compressor, vp8, av1, сжать видео онлайн" />
     <title>{`${title} | ${PUBLIC_SITE_NAME}`}</title>
 
+    <script is:inline>
+      const theme = localStorage.getItem('theme')
+      const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
+      if (theme === 'dark' || (!theme && prefersDark)) {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
+
     {PUBLIC_METRIKA && <Fragment set:html={metrikaScript} />}
   </head>
   <body class="flex flex-col min-h-dvh">
