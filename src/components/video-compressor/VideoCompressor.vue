@@ -40,6 +40,7 @@ const {
   availableQuality,
   availableResolutions,
   codec,
+  compressionInfo,
   quality,
   resolution,
   status,
@@ -238,6 +239,13 @@ const {
                 <Label for="remove-audio">Удалить аудио</Label>
               </div>
             </div>
+
+            <p
+              v-if="compressionInfo"
+              class="text-sm text-muted-foreground"
+            >
+              Ожидаемый размер: ~{{ compressionInfo.min.toFixed(1) }} &dash; {{ compressionInfo.max.toFixed(1) }} MB
+            </p>
 
             <Transition mode="out-in">
               <Button

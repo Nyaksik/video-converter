@@ -46,15 +46,15 @@ const resolutionMap: Record<string, {
   width: number
   height: number
 }> = {
-  '1080p': {
+  [Resolution.FullHD]: {
     width: 1920,
     height: 1080,
   },
-  '720p': {
+  [Resolution.HD]: {
     width: 1280,
     height: 720,
   },
-  '480p': {
+  [Resolution.SD]: {
     width: 854,
     height: 480,
   },
@@ -154,18 +154,32 @@ export function useVideoCompressor() {
   const compressionInfo = computed(() => {
     if (!videoMetadata.value || !inputFile.value) return null
 
-    // const config = getConversionConfig()
-    // const targetRes = getTargetResolution()
-    // const videoBitrate = (config.video?.bitrate as number) ?? 0
-    // const audioBitrate = (config.audio?.bitrate as number) ?? 0
-    //
-    // const estimatedSize = (
-    //   (videoBitrate + audioBitrate)
-    //   * videoMetadata.value.duration / 8
-    // ) * 1.25
-    //
-    // return (estimatedSize / 1024 / 1024).toFixed(2) + ' MB'
-    return 0
+    const duration = trimEnd.value - trimStart.value
+    if (duration <= 0) return null
+
+    const trimRatio = duration / videoMetadata.value.duration
+    const originalSize = inputFile.value.size
+
+    const qualityFactor = {
+      [Quality.High]: 0.45,
+      [Quality.Medium]: 0.4,
+      [Quality.Low]: 0.25,
+    }
+
+    const targetRes = getTargetResolution()
+    const originalPixels = videoMetadata.value.width * videoMetadata.value.height
+    const targetPixels = targetRes.width * targetRes.height
+    const pixelRatio = Math.min(1, Math.sqrt(targetPixels / originalPixels))
+    const audioFactor = removeAudio.value ? 0.9 : 1
+
+    const base = originalSize * trimRatio * qualityFactor[quality.value] * pixelRatio * audioFactor
+    const min = base
+    const max = base * 1.5
+
+    return {
+      min: Math.max(0.01, min / 1024 / 1024),
+      max: Math.max(0.01, max / 1024 / 1024),
+    }
   })
 
   const trimStartComputed = computed({
@@ -310,6 +324,8 @@ export function useVideoCompressor() {
 
     const { width, height } = videoMetadata.value
 
+    console.log(resolution.value)
+
     if (resolution.value === Resolution.OG) {
       return {
         width,
@@ -341,7 +357,8 @@ export function useVideoCompressor() {
 
   function getTargetBitrate(width: number, height: number): number {
     const pixels = width * height
-    const targetBitrate = pixels * bitsPerPixel[quality.value]
+    const frameRate = 30
+    const targetBitrate = pixels * bitsPerPixel[quality.value] * frameRate
 
     return Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
   }
