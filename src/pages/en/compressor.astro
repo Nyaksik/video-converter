@@ -3,9 +3,9 @@ import VideoCompressor from '@/components/video-compressor/VideoCompressor.vue'
 import { useTranslations } from '@/i18n'
 import Default from '@/layouts/Default.astro'
 
-const t = useTranslations('ru')
+const t = useTranslations('en')
 ---
 
 <Default title={t('comp.pageTitle')}>
-  <VideoCompressor client:only="vue" locale="ru" />
+  <VideoCompressor client:only="vue" locale="en" />
 </Default>

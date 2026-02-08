@@ -18,6 +18,8 @@ import {
 } from 'vue'
 import { toast } from 'vue-sonner'
 
+import { useI18n } from '@/i18n/vue.ts'
+
 import {
   type Codec,
   Quality,
@@ -66,7 +68,8 @@ const bitsPerPixel = {
   [Quality.Low]: 0.05,
 }
 
-export function useVideoCompressor() {
+export function useVideoCompressor(locale?: string) {
+  const { t } = useI18n(locale)
   let ffmpeg: FFmpeg | null = null
 
   const supportedCodecs = ref<Set<Codec>>(new Set(['h264']))
@@ -110,7 +113,7 @@ export function useVideoCompressor() {
     if (!videoMetadata.value) {
       return [{
         value: Resolution.OG,
-        label: 'Оригинал',
+        label: t('comp.original'),
         disabled: false,
       }]
     }
@@ -120,7 +123,7 @@ export function useVideoCompressor() {
     const resolutions: ResolutionItem[] = [
       {
         value: Resolution.OG,
-        label: 'Оригинал',
+        label: t('comp.original'),
         description: `${width}x${height}`,
         disabled: false,
         pixels: height,
@@ -535,7 +538,7 @@ export function useVideoCompressor() {
     catch (error) {
       console.error('FFmpeg error:', error)
       status.value = Status.Idle
-      toast.error('Ошибка при сжатии', { dismissible: true })
+      toast.error(t('error.compression'), { dismissible: true })
     }
   }
 
@@ -570,16 +573,16 @@ export function useVideoCompressor() {
       const availableMemory = jsHeapSizeLimit - usedJSHeapSize
 
       if (file.size >= availableMemory) {
-        toast.warning('Недосточно памяти для обработки видео', { dismissible: true })
+        toast.warning(t('error.memory'), { dismissible: true })
       }
     }
     else if (file.size > 2 * 1024 * 1024 * 1024) {
-      toast.warning('Большой файл может вызвать проблемы с производительностью', { dismissible: true })
+      toast.warning(t('error.largeFile'), { dismissible: true })
     }
 
     const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska']
     if (!validTypes.includes(file.type)) {
-      toast.error('Данный тип файла не поддерживается!', { dismissible: true })
+      toast.error(t('error.unsupported'), { dismissible: true })
       return
     }
 

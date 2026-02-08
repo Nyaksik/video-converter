@@ -3,7 +3,11 @@ import { Image } from 'astro:assets'
 
 import LogoInvertedImage from '@/assets/images/logo-inverted.png'
 import LogoImage from '@/assets/images/logo.png'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { getLangFromUrl } from '@/i18n'
+
+const lang = getLangFromUrl(Astro.url)
 ---
 
 <header class="py-5">
@@ -12,7 +16,10 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
       <Image class="dark:hidden object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoImage} alt="Logo" width="200" height="200" />
       <Image class="not-dark:hidden object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoInvertedImage} alt="Logo" width="200" height="200" />
     </a>
-    <ThemeToggle client:load />
+    <div class="flex items-center gap-1">
+      <LanguageSwitcher client:load locale={lang} />
+      <ThemeToggle client:load />
+    </div>
   </div>
   <hr class="opacity-40">
 </header>

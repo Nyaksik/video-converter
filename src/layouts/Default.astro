@@ -7,15 +7,18 @@ import { PUBLIC_METRIKA, PUBLIC_SITE_NAME } from 'astro:env/server'
 import PageFooter from '@/components/PageFooter.astro'
 import PageHeader from '@/components/PageHeader.astro'
 import { Toaster } from '@/components/ui/sonner'
+import { getLangFromUrl, useTranslations } from '@/i18n'
 
 const { title, description } = Astro.props
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
 
 const metrikaScript = `
  <!-- Yandex.Metrika counter --> <script type="text/javascript">     (function(m,e,t,r,i,k,a){         m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};         m[i].l=1*new Date();         for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}         k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=106622925', 'ym');      ym(106622925, 'init', {ssr:true, trackHash:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true}); </script> <noscript><div><img src="https://mc.yandex.ru/watch/106622925" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->   
 `;
 ---
 
-<html lang="ru">
+<html lang={lang}>
   <head>
     <SEO
       title={`${title} | ${PUBLIC_SITE_NAME}`}
@@ -29,14 +32,28 @@ const metrikaScript = `
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;600&display=swap" rel="stylesheet" >
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="keywords" content="сжатие видео, webcodecs, video compressor, vp8, av1, сжать видео онлайн" />
+    <meta name="keywords" content={t('meta.keywords')} />
     <title>{`${title} | ${PUBLIC_SITE_NAME}`}</title>
 
     <script is:inline>
       const theme = localStorage.getItem('theme')
       const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
+
       if (theme === 'dark' || (!theme && prefersDark)) {
         document.documentElement.classList.add('dark')
+      }
+
+      if (!localStorage.getItem('locale')) {
+        const browserLang = navigator.language.slice(0, 2)
+        const isRuPage = !location.pathname.startsWith('/en')
+
+        if (browserLang !== 'ru' && isRuPage) {
+          localStorage.setItem('locale', 'en')
+          location.replace('/en' + location.pathname)
+        }
+        else {
+          localStorage.setItem('locale', 'ru')
+        }
       }
     </script>
 

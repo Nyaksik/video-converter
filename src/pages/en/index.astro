@@ -4,7 +4,7 @@ import Button from '@/components/ui/button/Button.vue'
 import { useTranslations } from '@/i18n'
 import Default from '@/layouts/Default.astro'
 
-const t = useTranslations('ru')
+const t = useTranslations('en')
 ---
 
 <Default title={t('home.pageTitle')}>
@@ -27,7 +27,7 @@ const t = useTranslations('ru')
       </Badge>
     </div>
     <div class="flex justify-center">
-      <Button as="a" href="/compressor" size="lg" class="text-2xl px-12 h-16">
+      <Button as="a" href="/en/compressor" size="lg" class="text-2xl px-12 h-16">
         {t('home.cta')}
       </Button>
     </div>

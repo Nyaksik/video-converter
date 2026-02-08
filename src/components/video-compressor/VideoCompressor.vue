@@ -30,8 +30,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
+import { useI18n } from '@/i18n/vue.ts'
 
 import { Status } from './types.ts'
+
+const props = defineProps<{ locale?: string }>()
+
+const { t } = useI18n(props.locale)
 
 const {
   inputFile,
@@ -55,26 +60,26 @@ const {
   handleFile,
   downloadVideo,
   updateTrimValues,
-} = useVideoCompressor()
+} = useVideoCompressor(props.locale)
 </script>
 
 <template>
   <section class="container">
     <h1 class="absolute size-0 left-0 top-0 invisible">
-      Видео компрессор
+      {{ t('comp.pageTitle') }}
     </h1>
 
     <div class="text-center">
       <p class="text-lg mb-6">
-        Сожми видео за секунды!
+        {{ t('comp.tagline') }}
       </p>
     </div>
 
     <Transition mode="out-in">
       <Card v-if="!inputFile">
         <CardHeader>
-          <CardTitle>Добавь видео</CardTitle>
-          <CardDescription>Поддержка MP4, MOV, WebM, MKV</CardDescription>
+          <CardTitle>{{ t('comp.addVideo') }}</CardTitle>
+          <CardDescription>{{ t('comp.formats') }}</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4 grow">
           <div class="relative border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
@@ -86,7 +91,7 @@ const {
               @change="handleFile"
             >
             <p class="font-medium mb-1">
-              Нажми или перетащи видео
+              {{ t('comp.dropHint') }}
             </p>
           </div>
         </CardContent>
@@ -142,18 +147,18 @@ const {
                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 @change="handleFile"
               >
-              Новое видео
+              {{ t('comp.newVideo') }}
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Настройки сжатия</CardTitle>
+            <CardTitle>{{ t('comp.settings') }}</CardTitle>
           </CardHeader>
           <CardContent class="grid gap-5 relative">
             <div>
-              <label class="text-sm font-medium mb-1 block">Кодек</label>
+              <label class="text-sm font-medium mb-1 block">{{ t('comp.codec') }}</label>
               <RadioGroup
                 v-model="codec"
                 class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
@@ -178,7 +183,7 @@ const {
             </div>
 
             <div>
-              <label class="text-sm font-medium mb-1 block">Сжатие</label>
+              <label class="text-sm font-medium mb-1 block">{{ t('comp.compression') }}</label>
               <RadioGroup
                 v-model="quality"
                 class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
@@ -203,7 +208,7 @@ const {
             </div>
 
             <div>
-              <label class="text-sm font-medium mb-1 block">Разрешение</label>
+              <label class="text-sm font-medium mb-1 block">{{ t('comp.resolution') }}</label>
               <RadioGroup
                 v-model="resolution"
                 class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
@@ -236,7 +241,7 @@ const {
                   id="remove-audio"
                   v-model="removeAudio"
                 />
-                <Label for="remove-audio">Удалить аудио</Label>
+                <Label for="remove-audio">{{ t('comp.removeAudio') }}</Label>
               </div>
             </div>
 
@@ -244,7 +249,12 @@ const {
               v-if="compressionInfo"
               class="text-sm text-muted-foreground"
             >
-              Ожидаемый размер: ~{{ compressionInfo.min.toFixed(1) }} &dash; {{ compressionInfo.max.toFixed(1) }} MB
+              {{
+                t('comp.estimatedSize', {
+                  min: compressionInfo.min.toFixed(1),
+                  max: compressionInfo.max.toFixed(1),
+                })
+              }}
             </p>
 
             <Transition mode="out-in">
@@ -255,7 +265,7 @@ const {
                 @click="downloadVideo"
               >
                 <Download class="size-4" />
-                Скачать {{ Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }} MB
+                {{ t('comp.download', { size: Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }) }}
               </Button>
               <Button
                 v-else
@@ -270,10 +280,10 @@ const {
                 />
                 <template v-if="status === Status.Loading" />
                 <template v-else-if="status === Status.Processing">
-                  Обработка {{ progress }}&percnt;
+                  {{ t('comp.processing', { progress }) }}
                 </template>
                 <template v-else>
-                  Сжать видео
+                  {{ t('comp.compress') }}
                 </template>
               </Button>
             </Transition>
@@ -298,24 +308,24 @@ const {
               <div class="flex flex-wrap justify-between items-center">
                 <Badge>
                   <template v-if="status === Status.Processing">
-                    Обработка {{ progress }}&percnt;
+                    {{ t('comp.processing', { progress }) }}
                   </template>
                   <template v-else>
-                    Готово
+                    {{ t('comp.done') }}
                   </template>
                 </Badge>
                 <Transition>
                   <ButtonGroup v-if="outputBlob && status === Status.Done">
                     <Button @click="downloadVideo">
                       <Download class="size-4" />
-                      Скачать {{ Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }} MB
+                      {{ t('comp.download', { size: Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }) }}
                     </Button>
                     <Button
                       variant="secondary"
                       @click="handleCompress"
                     >
                       <Repeat2 class="size-4" />
-                      Перегенерировать
+                      {{ t('comp.regenerate') }}
                     </Button>
                     <Button
                       class="relative cursor-pointer"
@@ -328,7 +338,7 @@ const {
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         @change="handleFile"
                       >
-                      Новое видео
+                      {{ t('comp.newVideo') }}
                     </Button>
                   </ButtonGroup>
                 </Transition>

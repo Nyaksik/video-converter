@@ -15,6 +15,11 @@ const {
 // https://astro.build/config
 export default defineConfig({
   site: PUBLIC_SITE_URL,
+  i18n: {
+    locales: ['ru', 'en'],
+    defaultLocale: 'ru',
+    routing: { prefixDefaultLocale: false },
+  },
   env: {
     schema: {
       PUBLIC_SITE_NAME: envField.string({
