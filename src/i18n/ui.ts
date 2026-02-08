@@ -10,7 +10,10 @@ export type Locale = keyof typeof languages
 export const ui = {
   ru: {
     // meta
-    'meta.keywords': 'сжатие видео, webcodecs, video compressor, сжать видео онлайн',
+    'meta.homeDescription': 'Бесплатный онлайн-компрессор видео. Сжимайте MP4, MOV, WebM и MKV прямо в браузере без загрузки на сервер. Без водяных знаков, до 90% экономии размера.',
+    'meta.compDescription': 'Сжатие видео онлайн — выберите кодек (H.264, VP9, AV1), качество и разрешение. Обработка прямо в браузере через WebCodecs, быстро и бесплатно.',
+    'meta.homeKeywords': 'сжатие видео, сжать видео онлайн, компрессор видео, уменьшить размер видео, конвертер видео, webcodecs, сжать mp4, сжать видео бесплатно, видео компрессор онлайн, video compressor',
+    'meta.compKeywords': 'сжать видео, компрессор видео онлайн, сжатие mp4, сжатие webm, h264, vp9, av1, уменьшить видео без потери качества, webcodecs, обрезать видео онлайн',
 
     // home
     'home.pageTitle': 'Главная',
@@ -48,7 +51,10 @@ export const ui = {
     'error.unsupported': 'Данный тип файла не поддерживается!',
   },
   en: {
-    'meta.keywords': 'video compression, webcodecs, video compressor, compress video online',
+    'meta.homeDescription': 'Free online video compressor. Compress MP4, MOV, WebM and MKV right in your browser with no server uploads. No watermarks, up to 90% size savings.',
+    'meta.compDescription': 'Compress video online — choose codec (H.264, VP9, AV1), quality and resolution. Processed in your browser via WebCodecs, fast and free.',
+    'meta.homeKeywords': 'video compression, compress video online, video compressor, reduce video size, video converter, webcodecs, compress mp4, free video compressor, online video compressor, shrink video file',
+    'meta.compKeywords': 'compress video, online video compressor, mp4 compression, webm compression, h264, vp9, av1, reduce video size without quality loss, webcodecs, trim video online',
 
     'home.pageTitle': 'Home',
     'home.title': 'Compress videos in\u00a0your browser in\u00a0seconds!',

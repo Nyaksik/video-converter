@@ -6,6 +6,6 @@ import Default from '@/layouts/Default.astro'
 const t = useTranslations('ru')
 ---
 
-<Default title={t('comp.pageTitle')}>
+<Default title={t('comp.pageTitle')} description={t('meta.compDescription')} keywords={t('meta.compKeywords')}>
   <VideoCompressor client:only="vue" locale="ru" />
 </Default>

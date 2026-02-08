@@ -37,6 +37,11 @@ export default defineConfig([
       globals: {
         console: 'readonly',
         document: 'readonly',
+        localStorage: 'readonly',
+        location: 'readonly',
+        matchMedia: 'readonly',
+        navigator: 'readonly',
+        performance: 'readonly',
         window: 'readonly',
         process: 'readonly',
       },
