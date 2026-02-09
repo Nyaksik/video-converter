@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { formatSize } from '@/lib/utils'
 
 import { type BatchFileItem, BatchFileStatus } from './types.ts'
 
@@ -23,10 +24,6 @@ defineEmits<{
   remove: [id: string]
   download: [id: string]
 }>()
-
-function formatSize(bytes: number): string {
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-}
 </script>
 
 <template>
@@ -48,7 +45,7 @@ function formatSize(bytes: number): string {
         "
         :class="[
           'size-5 shrink-0',
-          item.status === BatchFileStatus.Done && 'text-green',
+          item.status === BatchFileStatus.Done && 'text-green-500',
           item.status === BatchFileStatus.Error && 'text-destructive',
           (item.status === BatchFileStatus.Processing || item.status === BatchFileStatus.Analyzing)
             && 'animate-spin text-primary',

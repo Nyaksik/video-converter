@@ -33,6 +33,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { useI18n } from '@/i18n/vue.ts'
+import { formatSize } from '@/lib/utils'
 
 import BatchFileList from './BatchFileList.vue'
 import { BatchStatus, Status } from './types.ts'
@@ -298,7 +299,7 @@ function handleNewBatch() {
                 @click="downloadAll"
               >
                 <FolderArchive class="size-4" />
-                {{ t('batch.downloadAll', { size: (totalOutputSize / 1024 / 1024).toFixed(1) }) }}
+                {{ t('batch.downloadAll', { size: formatSize(totalOutputSize) }) }}
               </Button>
               <Button
                 v-else-if="batchStatus === BatchStatus.Processing"
@@ -328,10 +329,10 @@ function handleNewBatch() {
         v-else
         class="grid lg:grid-cols-2 gap-5 items-start"
       >
-        <Card v-if="previewUrl">
+        <Card v-if="inputFile && previewUrl">
           <CardHeader>
             <CardTitle>{{ inputFile.name }}</CardTitle>
-            <CardDescription>{{ Math.round(inputFile.size / 1024 / 1024 * 100) / 100 }} MB</CardDescription>
+            <CardDescription>{{ formatSize(inputFile.size) }}</CardDescription>
           </CardHeader>
           <CardContent class="space-y-4 grow">
             <video
@@ -493,7 +494,7 @@ function handleNewBatch() {
                 @click="downloadVideo"
               >
                 <Download class="size-4" />
-                {{ t('comp.download', { size: Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }) }}
+                {{ t('comp.download', { size: formatSize(outputBlob.size) }) }}
               </Button>
               <Button
                 v-else
@@ -547,7 +548,7 @@ function handleNewBatch() {
                   <ButtonGroup v-if="outputBlob && status === Status.Done">
                     <Button @click="downloadVideo">
                       <Download class="size-4" />
-                      {{ t('comp.download', { size: Math.round(outputBlob.size / 1024 / 1024 * 100) / 100 }) }}
+                      {{ t('comp.download', { size: formatSize(outputBlob.size) }) }}
                     </Button>
                     <Button
                       variant="secondary"
@@ -606,7 +607,7 @@ function handleNewBatch() {
                   <ButtonGroup v-if="batchStatus === BatchStatus.Done">
                     <Button @click="downloadAll">
                       <FolderArchive class="size-4" />
-                      {{ t('batch.downloadAll', { size: (totalOutputSize / 1024 / 1024).toFixed(1) }) }}
+                      {{ t('batch.downloadAll', { size: formatSize(totalOutputSize) }) }}
                     </Button>
                     <Button
                       variant="destructive"
