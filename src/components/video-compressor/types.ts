@@ -34,3 +34,34 @@ export type ResolutionItem = {
   disabled: boolean
   pixels?: number
 }
+
+export enum BatchFileStatus {
+  Pending,
+  Analyzing,
+  Processing,
+  Done,
+  Error,
+}
+
+export type BatchFileItem = {
+  id: string
+  file: File
+  status: BatchFileStatus
+  progress: number
+  metadata: VideoMetaData | null
+  outputBlob: Blob | null
+  error: string | null
+}
+
+export enum BatchStatus {
+  Idle,
+  Processing,
+  Done,
+}
+
+export type CompressionSettings = {
+  codec: Codec
+  quality: Quality
+  resolution: Resolution
+  removeAudio: boolean
+}

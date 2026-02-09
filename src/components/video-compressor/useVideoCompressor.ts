@@ -1,16 +1,4 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile } from '@ffmpeg/util'
 import { watchDebounced } from '@vueuse/core'
-import {
-  ALL_FORMATS,
-  BlobSource,
-  BufferTarget,
-  Conversion,
-  type ConversionOptions,
-  Input,
-  Mp4OutputFormat,
-  Output,
-} from 'mediabunny'
 import {
   computed,
   ref,
@@ -20,6 +8,12 @@ import { toast } from 'vue-sonner'
 
 import { useI18n } from '@/i18n/vue.ts'
 
+import {
+  analyzeVideoFile,
+  compressFile,
+  detectBrowserCodecs,
+  getTargetResolution,
+} from './compressFile.ts'
 import {
   type Codec,
   Quality,
@@ -44,33 +38,8 @@ const availableQuality = [
   },
 ]
 
-const resolutionMap: Record<string, {
-  width: number
-  height: number
-}> = {
-  [Resolution.FullHD]: {
-    width: 1920,
-    height: 1080,
-  },
-  [Resolution.HD]: {
-    width: 1280,
-    height: 720,
-  },
-  [Resolution.SD]: {
-    width: 854,
-    height: 480,
-  },
-}
-
-const bitsPerPixel = {
-  [Quality.High]: 0.15,
-  [Quality.Medium]: 0.08,
-  [Quality.Low]: 0.05,
-}
-
 export function useVideoCompressor(locale?: string) {
   const { t } = useI18n(locale)
-  let ffmpeg: FFmpeg | null = null
 
   const supportedCodecs = ref<Set<Codec>>(new Set(['h264']))
   const videoMetadata = ref<VideoMetaData | null>(null)
@@ -169,7 +138,7 @@ export function useVideoCompressor(locale?: string) {
       [Quality.Low]: 0.25,
     }
 
-    const targetRes = getTargetResolution()
+    const targetRes = getTargetResolution(videoMetadata.value, resolution.value)
     const originalPixels = videoMetadata.value.width * videoMetadata.value.height
     const targetPixels = targetRes.width * targetRes.height
     const pixelRatio = Math.min(1, Math.sqrt(targetPixels / originalPixels))
@@ -227,327 +196,53 @@ export function useVideoCompressor(locale?: string) {
     removeAudio.value = false
     previewUrl.value = URL.createObjectURL(file)
 
-    await Promise.all([
-      analyzeVideo(file),
-      detectSupportedCodecs(),
+    const [metadata, codecs] = await Promise.all([
+      analyzeVideoFile(file).catch(() => null),
+      detectBrowserCodecs(),
     ])
 
-    if (videoMetadata.value) {
-      trimEnd.value = videoMetadata.value?.duration
+    if (metadata) {
+      videoMetadata.value = metadata
+      trimEnd.value = metadata.duration
+    }
+
+    supportedCodecs.value = codecs
+    if (!codecs.has(codec.value)) {
+      codec.value = Array.from(codecs)[0] || 'h264'
     }
   })
 
-  async function analyzeVideo(file: File) {
-    return new Promise<void>((resolve) => {
-      const video = document.createElement('video')
-      video.preload = 'metadata'
-      video.src = URL.createObjectURL(file)
-
-      video.onloadedmetadata = () => {
-        videoMetadata.value = {
-          width: video.videoWidth,
-          height: video.videoHeight,
-          duration: video.duration,
-          estimatedBitrate: (file.size * 8) / video.duration,
-        }
-
-        URL.revokeObjectURL(video.src)
-        resolve()
-      }
-
-      video.onerror = () => {
-        console.error('Failed to load video metadata')
-        URL.revokeObjectURL(video.src)
-        resolve()
-      }
-    })
-  }
-
-  async function detectSupportedCodecs() {
-    if (!('VideoEncoder' in window)) {
-      supportedCodecs.value = new Set(['h264'])
-      return
-    }
-
-    const codecsToTest: Array<{
-      name: Codec
-      config: string
-    }> = [
-      {
-        name: 'h264',
-        config: 'avc1.42E01E',
-      },
-      {
-        name: 'vp9',
-        config: 'vp09.00.10.08',
-      },
-      {
-        name: 'av1',
-        config: 'av01.0.04M.08',
-      },
-    ]
-
-    const supported = new Set<Codec>()
-
-    for (const { name, config } of codecsToTest) {
-      try {
-        const result = await VideoEncoder.isConfigSupported({
-          codec: config,
-          width: 1920,
-          height: 1080,
-          framerate: 30,
-        })
-
-        if (result.supported) {
-          supported.add(name)
-        }
-      }
-      catch (error) {
-        console.warn(`Codec ${name} test failed:`, error)
-      }
-    }
-
-    supportedCodecs.value = supported
-
-    if (!supported.has(codec.value)) {
-      codec.value = Array.from(supported)[0] || 'h264'
-    }
-
-    console.log('Supported codecs:', Array.from(supported))
-  }
-
-  function getTargetResolution(): { width: number
-    height: number } {
-    if (!videoMetadata.value) {
-      return {
-        width: 1920,
-        height: 1080,
-      }
-    }
-
-    const { width, height } = videoMetadata.value
-
-    console.log(resolution.value)
-
-    if (resolution.value === Resolution.OG) {
-      return {
-        width,
-        height,
-      }
-    }
-
-    const target = resolutionMap[resolution.value]
-    const aspectRatio = width / height
-    const targetAspectRatio = target.width / target.height
-
-    if (Math.abs(aspectRatio - targetAspectRatio) < 0.01) {
-      return target
-    }
-
-    if (aspectRatio > targetAspectRatio) {
-      return {
-        width: target.width,
-        height: Math.round(target.width / aspectRatio / 2) * 2,
-      }
-    }
-    else {
-      return {
-        width: Math.round(target.height * aspectRatio / 2) * 2,
-        height: target.height,
-      }
-    }
-  }
-
-  function getTargetBitrate(width: number, height: number): number {
-    const pixels = width * height
-    const frameRate = 30
-    const targetBitrate = pixels * bitsPerPixel[quality.value] * frameRate
-
-    return Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
-  }
-
-  function getConversionConfig(): Partial<Pick<ConversionOptions, 'video' | 'audio' | 'trim'>> {
-    const targetRes = getTargetResolution()
-    const videoBitrate = getTargetBitrate(targetRes.width, targetRes.height)
-
-    const codecMap: Record<Codec, 'avc' | 'vp9' | 'av1'> = {
-      h264: 'avc', // H.264
-      vp9: 'vp9', // VP9
-      av1: 'av1', // AV1
-    }
-
-    const audioBitrate = quality.value === Quality.Low
-      ? 96_000
-      : quality.value === Quality.High
-        ? 192_000
-        : 128_000
-
-    return {
-      video: {
-        width: targetRes.width,
-        height: targetRes.height,
-        fit: 'contain',
-        codec: codecMap[codec.value],
-        bitrate: videoBitrate,
-        frameRate: 30,
-        keyFrameInterval: 60,
-      },
-      audio: {
-        bitrate: audioBitrate,
-        codec: 'aac',
-        sampleRate: 48000,
-        discard: removeAudio.value,
-      },
-      trim: {
-        start: trimStart.value,
-        end: trimEnd.value,
-      },
-    }
-  }
-
-  function getFFmpegArgs() {
-    const targetRes = getTargetResolution()
-
-    const crfMap = {
-      [Quality.High]: '23',
-      [Quality.Medium]: '28',
-      [Quality.Low]: '32',
-    }
-
-    const codecArgs = codec.value === 'h264'
-      ? ['-c:v', 'libx264', '-preset', 'medium']
-      : codec.value === 'vp9'
-        ? ['-c:v', 'libvpx-vp9', '-crf', '30']
-        : ['-c:v', 'libx264', '-preset', 'medium'] // fallback
-
-    const scaleArgs = resolution.value !== Resolution.OG
-      ? ['-vf', `scale=${targetRes.width}:${targetRes.height}:flags=bicubic`]
-      : []
-
-    const audioArgs = removeAudio.value
-      ? ['-an']
-      : [
-          '-c:a', 'aac',
-          '-b:a', quality.value === Quality.Low
-            ? '96k'
-            : quality.value === Quality.High
-              ? '192k'
-              : '128k',
-        ]
-
-    return [
-      ...codecArgs,
-      '-ss', trimStart.value.toString(),
-      '-to', trimEnd.value.toString(),
-      '-crf', crfMap[quality.value],
-      ...scaleArgs,
-      ...audioArgs,
-      '-movflags', '+faststart',
-    ]
-  }
-
-  async function compressVideoWebcodecs() {
-    if (!inputFile.value) return
+  async function handleCompress() {
+    if (!inputFile.value || !videoMetadata.value) return
 
     status.value = Status.Processing
     progress.value = 0
 
     try {
-      const config = getConversionConfig()
+      const blob = await compressFile(
+        inputFile.value,
+        videoMetadata.value,
+        {
+          codec: codec.value,
+          quality: quality.value,
+          resolution: resolution.value,
+          removeAudio: removeAudio.value,
+        },
+        supportedCodecs.value,
+        (p) => { progress.value = p },
+        {
+          start: trimStart.value,
+          end: trimEnd.value,
+        },
+      )
 
-      const input = new Input({
-        source: new BlobSource(inputFile.value),
-        formats: ALL_FORMATS,
-      })
-
-      const output = new Output({
-        format: new Mp4OutputFormat(),
-        target: new BufferTarget(),
-      })
-
-      const conversion = await Conversion.init({
-        input,
-        output,
-        ...config,
-      })
-
-      conversion.onProgress = (p: number) => {
-        progress.value = Math.round(p * 100)
-      }
-
-      await conversion.execute()
-      const mp4Buffer = output.target.buffer
-
-      if (!mp4Buffer) {
-        throw new Error('No buffer')
-      }
-
-      outputBlob.value = new Blob([mp4Buffer], { type: 'video/mp4' })
+      outputBlob.value = blob
       status.value = Status.Done
     }
     catch (error) {
-      console.error('WebCodecs error:', error)
-      console.log('Falling back to FFmpeg...')
-      await loadFFmpeg().then(compressVideo)
-    }
-  }
-
-  async function loadFFmpeg() {
-    if (ffmpeg?.loaded) return
-
-    ffmpeg = new FFmpeg()
-    status.value = Status.Loading
-
-    try {
-      await ffmpeg.load()
-
-      ffmpeg.on('progress', ({ progress: p }) => {
-        progress.value = Math.round((p || 0) * 100)
-      })
-      status.value = Status.Idle
-    }
-    catch (error) {
-      console.error('FFmpeg load error:', error)
-      status.value = Status.Idle
-    }
-  }
-
-  async function compressVideo() {
-    if (!inputFile.value || !ffmpeg?.loaded) return
-
-    status.value = Status.Processing
-    progress.value = 0
-
-    try {
-      const ext = inputFile.value.name.split('.').pop() || 'mp4'
-      const inputName = `input.${ext}`
-      const outputName = 'output.mp4'
-
-      await ffmpeg.writeFile(inputName, await fetchFile(inputFile.value))
-      await ffmpeg.exec(['-i', inputName, ...getFFmpegArgs(), '-y', outputName])
-
-      const data = await ffmpeg.readFile(outputName)
-      outputBlob.value = new Blob([data], { type: 'video/mp4' })
-
-      await ffmpeg.deleteFile(inputName)
-      await ffmpeg.deleteFile(outputName)
-
-      status.value = Status.Done
-      console.log('FFmpeg compression complete, size:', data.length)
-    }
-    catch (error) {
-      console.error('FFmpeg error:', error)
+      console.error('Compression error:', error)
       status.value = Status.Idle
       toast.error(t('error.compression'), { dismissible: true })
-    }
-  }
-
-  async function handleCompress() {
-    if ('VideoEncoder' in window && supportedCodecs.value.has(codec.value)) {
-      await compressVideoWebcodecs()
-    }
-    else {
-      await loadFFmpeg().then(compressVideo)
     }
   }
 
@@ -568,8 +263,10 @@ export function useVideoCompressor(locale?: string) {
     if (!file) return
 
     if ('memory' in performance) {
-      const { jsHeapSizeLimit = 0, usedJSHeapSize = 0 } = performance.memory as { jsHeapSizeLimit?: number
-        usedJSHeapSize?: number }
+      const { jsHeapSizeLimit = 0, usedJSHeapSize = 0 } = performance.memory as {
+        jsHeapSizeLimit?: number
+        usedJSHeapSize?: number
+      }
       const availableMemory = jsHeapSizeLimit - usedJSHeapSize
 
       if (file.size >= availableMemory) {

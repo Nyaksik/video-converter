@@ -27,7 +27,7 @@ export const ui = {
     // compressor
     'comp.pageTitle': 'Компрессор',
     'comp.tagline': 'Сожми видео за секунды!',
-    'comp.addVideo': 'Добавь видео',
+    'comp.addVideo': 'Добавь видео или несколько',
     'comp.formats': 'Поддержка MP4, MOV, WebM, MKV',
     'comp.dropHint': 'Нажми или перетащи видео',
     'comp.newVideo': 'Новое видео',
@@ -43,6 +43,18 @@ export const ui = {
     'comp.done': 'Готово',
     'comp.regenerate': 'Перегенерировать',
     'comp.original': 'Оригинал',
+
+    // batch
+    'batch.files': 'Файлы ({count})',
+    'batch.completed': '{done}/{total} завершено',
+    'batch.compressAll': 'Сжать все',
+    'batch.processing': 'Сжатие {done}/{total}...',
+    'batch.downloadAll': 'Скачать все ({size} MB)',
+    'batch.addMore': 'Добавить ещё',
+    'batch.newBatch': 'Новая партия',
+    'batch.cancel': 'Отменить',
+    'batch.allDone': 'Все файлы сжаты!',
+    'batch.maxFiles': 'Максимум {max} файлов',
 
     // errors / warnings
     'error.compression': 'Ошибка при сжатии',
@@ -66,7 +78,7 @@ export const ui = {
 
     'comp.pageTitle': 'Compressor',
     'comp.tagline': 'Compress your video in seconds!',
-    'comp.addVideo': 'Add video',
+    'comp.addVideo': 'Add one or more videos',
     'comp.formats': 'Supports MP4, MOV, WebM, MKV',
     'comp.dropHint': 'Click or drag video here',
     'comp.newVideo': 'New video',
@@ -82,6 +94,17 @@ export const ui = {
     'comp.done': 'Done',
     'comp.regenerate': 'Regenerate',
     'comp.original': 'Original',
+
+    'batch.files': 'Files ({count})',
+    'batch.completed': '{done}/{total} completed',
+    'batch.compressAll': 'Compress all',
+    'batch.processing': 'Compressing {done}/{total}...',
+    'batch.downloadAll': 'Download all ({size} MB)',
+    'batch.addMore': 'Add more files',
+    'batch.newBatch': 'New batch',
+    'batch.cancel': 'Cancel',
+    'batch.allDone': 'All files compressed!',
+    'batch.maxFiles': 'Maximum {max} files',
 
     'error.compression': 'Compression error',
     'error.memory': 'Not enough memory to process this video',

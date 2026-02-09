@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import {
   Download,
+  FolderArchive,
   Loader2,
+  Plus,
   Repeat2,
   Upload,
 } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,10 +32,12 @@ import { Progress } from '@/components/ui/progress'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
-import { useVideoCompressor } from '@/components/video-compressor/useVideoCompressor.ts'
 import { useI18n } from '@/i18n/vue.ts'
 
-import { Status } from './types.ts'
+import BatchFileList from './BatchFileList.vue'
+import { BatchStatus, Status } from './types.ts'
+import { useBatchCompressor } from './useBatchCompressor.ts'
+import { useVideoCompressor } from './useVideoCompressor.ts'
 
 const props = defineProps<{ locale?: string }>()
 
@@ -41,13 +46,13 @@ const { t } = useI18n(props.locale)
 const {
   inputFile,
   outputBlob,
-  availableCodecs,
+  availableCodecs: singleAvailableCodecs,
   availableQuality,
-  availableResolutions,
-  codec,
+  availableResolutions: singleAvailableResolutions,
+  codec: singleCodec,
   compressionInfo,
-  quality,
-  resolution,
+  quality: singleQuality,
+  resolution: singleResolution,
   status,
   progress,
   previewUrl,
@@ -55,12 +60,69 @@ const {
   trimStartComputed,
   videoMetadata,
   videoRef,
-  removeAudio,
+  removeAudio: singleRemoveAudio,
   handleCompress,
-  handleFile,
+  handleFile: handleSingleFile,
   downloadVideo,
   updateTrimValues,
 } = useVideoCompressor(props.locale)
+
+const {
+  files: batchFiles,
+  batchStatus,
+  currentFileId,
+  codec: batchCodec,
+  quality: batchQuality,
+  resolution: batchResolution,
+  removeAudio: batchRemoveAudio,
+  availableCodecs: batchAvailableCodecs,
+  availableResolutions: batchAvailableResolutions,
+  totalCount,
+  completedCount,
+  overallProgress,
+  totalOutputSize,
+  addFiles,
+  removeFile,
+  startBatch,
+  cancelBatch,
+  downloadFile,
+  downloadAll,
+  resetBatch,
+} = useBatchCompressor(props.locale)
+
+const isBatchMode = computed(() => batchFiles.value.length > 0)
+
+const FILE_ACCEPT = 'video/mp4,video/quicktime,video/webm,video/x-matroska'
+
+function handleFileInput(e: Event) {
+  const target = e.target as HTMLInputElement
+  const fileList = target.files
+  if (!fileList || fileList.length === 0) return
+
+  if (fileList.length === 1 && !isBatchMode.value) {
+    handleSingleFile(e)
+  }
+  else {
+    inputFile.value = null
+    outputBlob.value = null
+    addFiles(fileList)
+  }
+
+  target.value = ''
+}
+
+function handleAddMore(e: Event) {
+  const target = e.target as HTMLInputElement
+  const fileList = target.files
+  if (!fileList || fileList.length === 0) return
+
+  addFiles(fileList)
+  target.value = ''
+}
+
+function handleNewBatch() {
+  resetBatch()
+}
 </script>
 
 <template>
@@ -76,7 +138,8 @@ const {
     </div>
 
     <Transition mode="out-in">
-      <Card v-if="!inputFile">
+      <!-- Upload state -->
+      <Card v-if="!inputFile && !isBatchMode">
         <CardHeader>
           <CardTitle>{{ t('comp.addVideo') }}</CardTitle>
           <CardDescription>{{ t('comp.formats') }}</CardDescription>
@@ -86,9 +149,10 @@ const {
             <Upload class="w-12 h-12 mx-auto text-slate-400 mb-4" />
             <input
               type="file"
-              accept="video/mp4,video/quicktime,video/webm,video/x-matroska"
+              multiple
+              :accept="FILE_ACCEPT"
               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              @change="handleFile"
+              @change="handleFileInput"
             >
             <p class="font-medium mb-1">
               {{ t('comp.dropHint') }}
@@ -97,6 +161,169 @@ const {
         </CardContent>
       </Card>
 
+      <!-- Batch mode -->
+      <div
+        v-else-if="isBatchMode"
+        class="grid lg:grid-cols-2 gap-5 items-start"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>{{ t('batch.files', { count: totalCount }) }}</CardTitle>
+            <CardDescription>{{ t('batch.completed', { done: completedCount, total: totalCount }) }}</CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-4 grow">
+            <BatchFileList
+              :files="batchFiles"
+              :current-file-id="currentFileId"
+              @remove="removeFile"
+              @download="downloadFile"
+            />
+            <Button
+              class="relative cursor-pointer w-full"
+              variant="outline"
+              as="label"
+              :disabled="batchStatus === BatchStatus.Processing"
+            >
+              <input
+                type="file"
+                multiple
+                :accept="FILE_ACCEPT"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                @change="handleAddMore"
+              >
+              <Plus class="size-4" />
+              {{ t('batch.addMore') }}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{{ t('comp.settings') }}</CardTitle>
+          </CardHeader>
+          <CardContent class="grid gap-5 relative">
+            <div>
+              <label class="text-sm font-medium mb-1 block">{{ t('comp.codec') }}</label>
+              <RadioGroup
+                v-model="batchCodec"
+                class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
+                :disabled="batchStatus === BatchStatus.Processing"
+              >
+                <FieldLabel
+                  v-for="(item, index) in batchAvailableCodecs"
+                  :key="index"
+                  class="cursor-pointer"
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{{ item.label }}</FieldTitle>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id="batch-codec"
+                      :value="item.value"
+                    />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <label class="text-sm font-medium mb-1 block">{{ t('comp.compression') }}</label>
+              <RadioGroup
+                v-model="batchQuality"
+                class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
+                :disabled="batchStatus === BatchStatus.Processing"
+              >
+                <FieldLabel
+                  v-for="(item, index) in availableQuality"
+                  :key="index"
+                  class="cursor-pointer"
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{{ item.label }}</FieldTitle>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id="batch-quality"
+                      :value="item.value"
+                    />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <label class="text-sm font-medium mb-1 block">{{ t('comp.resolution') }}</label>
+              <RadioGroup
+                v-model="batchResolution"
+                class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
+                :disabled="batchStatus === BatchStatus.Processing"
+              >
+                <FieldLabel
+                  v-for="(item, index) in batchAvailableResolutions"
+                  :key="index"
+                  class="cursor-pointer"
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{{ item.label }}</FieldTitle>
+                      <FieldDescription v-if="item.description">
+                        {{ item.description }}
+                      </FieldDescription>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id="batch-resolution"
+                      :value="item.value"
+                    />
+                  </Field>
+                </FieldLabel>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <div class="flex items-center space-x-2">
+                <Switch
+                  id="batch-remove-audio"
+                  v-model="batchRemoveAudio"
+                />
+                <Label for="batch-remove-audio">{{ t('comp.removeAudio') }}</Label>
+              </div>
+            </div>
+
+            <Transition mode="out-in">
+              <Button
+                v-if="batchStatus === BatchStatus.Done"
+                class="w-full"
+                size="lg"
+                @click="downloadAll"
+              >
+                <FolderArchive class="size-4" />
+                {{ t('batch.downloadAll', { size: (totalOutputSize / 1024 / 1024).toFixed(1) }) }}
+              </Button>
+              <Button
+                v-else-if="batchStatus === BatchStatus.Processing"
+                class="w-full"
+                size="lg"
+                variant="destructive"
+                @click="cancelBatch"
+              >
+                {{ t('batch.cancel') }}
+              </Button>
+              <Button
+                v-else
+                class="w-full"
+                size="lg"
+                :disabled="totalCount === 0"
+                @click="startBatch"
+              >
+                {{ t('batch.compressAll') }}
+              </Button>
+            </Transition>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Single file mode -->
       <div
         v-else
         class="grid lg:grid-cols-2 gap-5 items-start"
@@ -143,9 +370,10 @@ const {
             >
               <input
                 type="file"
-                accept="video/mp4,video/quicktime,video/webm,video/x-matroska"
+                multiple
+                :accept="FILE_ACCEPT"
                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                @change="handleFile"
+                @change="handleFileInput"
               >
               {{ t('comp.newVideo') }}
             </Button>
@@ -160,12 +388,12 @@ const {
             <div>
               <label class="text-sm font-medium mb-1 block">{{ t('comp.codec') }}</label>
               <RadioGroup
-                v-model="codec"
+                v-model="singleCodec"
                 class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
                 :disabled="!inputFile || status === Status.Processing"
               >
                 <FieldLabel
-                  v-for="(item, index) in availableCodecs"
+                  v-for="(item, index) in singleAvailableCodecs"
                   :key="index"
                   class="cursor-pointer"
                 >
@@ -185,7 +413,7 @@ const {
             <div>
               <label class="text-sm font-medium mb-1 block">{{ t('comp.compression') }}</label>
               <RadioGroup
-                v-model="quality"
+                v-model="singleQuality"
                 class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
                 :disabled="!inputFile || status === Status.Processing"
               >
@@ -210,12 +438,12 @@ const {
             <div>
               <label class="text-sm font-medium mb-1 block">{{ t('comp.resolution') }}</label>
               <RadioGroup
-                v-model="resolution"
+                v-model="singleResolution"
                 class="grid grid-cols-[repeat(auto-fit,minmax(125px,1fr))]"
                 :disabled="!inputFile || status === Status.Processing"
               >
                 <FieldLabel
-                  v-for="(item, index) in availableResolutions"
+                  v-for="(item, index) in singleAvailableResolutions"
                   :key="index"
                   class="cursor-pointer"
                 >
@@ -239,7 +467,7 @@ const {
               <div class="flex items-center space-x-2">
                 <Switch
                   id="remove-audio"
-                  v-model="removeAudio"
+                  v-model="singleRemoveAudio"
                 />
                 <Label for="remove-audio">{{ t('comp.removeAudio') }}</Label>
               </div>
@@ -292,10 +520,11 @@ const {
       </div>
     </Transition>
 
+    <!-- Single file bottom bar -->
     <Teleport to="body">
       <Transition>
         <div
-          v-show="status === Status.Processing || status === Status.Done"
+          v-show="!isBatchMode && (status === Status.Processing || status === Status.Done)"
           class="fixed left-0 bottom-0 w-full"
         >
           <Card class="relative w-full m-0 rounded-none">
@@ -334,11 +563,56 @@ const {
                     >
                       <input
                         type="file"
-                        accept="video/mp4,video/quicktime,video/webm,video/x-matroska"
+                        multiple
+                        :accept="FILE_ACCEPT"
                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        @change="handleFile"
+                        @change="handleFileInput"
                       >
                       {{ t('comp.newVideo') }}
+                    </Button>
+                  </ButtonGroup>
+                </Transition>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Batch bottom bar -->
+    <Teleport to="body">
+      <Transition>
+        <div
+          v-show="isBatchMode && (batchStatus === BatchStatus.Processing || batchStatus === BatchStatus.Done)"
+          class="fixed left-0 bottom-0 w-full"
+        >
+          <Card class="relative w-full m-0 rounded-none">
+            <CardContent>
+              <Progress
+                :model-value="overallProgress"
+                class="absolute top-0 left-0 h-3 rounded-none"
+              />
+
+              <div class="flex flex-wrap justify-between items-center">
+                <Badge>
+                  <template v-if="batchStatus === BatchStatus.Processing">
+                    {{ t('batch.processing', { done: completedCount, total: totalCount }) }}
+                  </template>
+                  <template v-else>
+                    {{ t('batch.allDone') }}
+                  </template>
+                </Badge>
+                <Transition>
+                  <ButtonGroup v-if="batchStatus === BatchStatus.Done">
+                    <Button @click="downloadAll">
+                      <FolderArchive class="size-4" />
+                      {{ t('batch.downloadAll', { size: (totalOutputSize / 1024 / 1024).toFixed(1) }) }}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      @click="handleNewBatch"
+                    >
+                      {{ t('batch.newBatch') }}
                     </Button>
                   </ButtonGroup>
                 </Transition>
