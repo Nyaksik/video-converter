@@ -24,10 +24,6 @@ export async function convertToGif(
 
   const duration = trim.end - trim.start
 
-  ffmpeg.on('progress', ({ progress: p }) => {
-    onProgress(Math.round(Math.min((p || 0) * 100, 100)))
-  })
-
   const ext = file.name.split('.').pop() || 'mp4'
   const inputName = `input.${ext}`
 
@@ -53,6 +49,12 @@ export async function convertToGif(
     ? 'paletteuse'
     : `paletteuse=dither=${settings.dither}`
 
+  const gifHandler = ({ progress: p }: { progress: number }) => {
+    onProgress(Math.round(Math.min((p || 0) * 100, 100)))
+  }
+
+  ffmpeg.on('progress', gifHandler)
+
   await ffmpeg.exec([
     '-ss', trim.start.toString(),
     '-t', duration.toString(),
@@ -61,6 +63,8 @@ export async function convertToGif(
     '-filter_complex', `${scaleFilter}[x];[x][1:v]${ditherOpt}`,
     '-y', 'output.gif',
   ])
+
+  ffmpeg.off('progress', gifHandler)
 
   const data = await ffmpeg.readFile('output.gif')
   const blob = new Blob([data], { type: 'image/gif' })

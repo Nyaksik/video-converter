@@ -133,8 +133,8 @@ export function useVideoToGif(locale?: string) {
     const totalFrames = duration * fps.value
     const raw = bytesPerFrame * totalFrames
 
-    const min = raw * 0.5
-    const max = raw * 1.2
+    const min = raw * 0.25
+    const max = raw * 0.5
 
     return {
       min: Math.max(0.01, min / 1024 / 1024),

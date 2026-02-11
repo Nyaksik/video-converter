@@ -103,6 +103,7 @@ export function useVideoFile(locale?: string) {
     outputBlob.value = null
     status.value = Status.Idle
     target.value = ''
+    progress.value = 0
   }
 
   function updateTrimValues(values?: number[]) {

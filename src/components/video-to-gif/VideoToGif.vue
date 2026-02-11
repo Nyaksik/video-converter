@@ -19,6 +19,7 @@ import {
 import {
   Field,
   FieldContent,
+  FieldLabel,
   FieldTitle,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -346,6 +347,7 @@ const FILE_ACCEPT = 'video/mp4,video/quicktime,video/webm,video/x-matroska'
                       @click="handleConvert"
                     >
                       <Repeat2 class="size-4" />
+                      {{ t('gif.regenerate') }}
                     </Button>
                     <Button
                       class="relative cursor-pointer"

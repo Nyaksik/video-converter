@@ -18,8 +18,8 @@ export const ui = {
     'meta.gifKeywords': 'видео в gif, конвертер gif, mp4 в gif, видео в гифку, создать gif из видео, gif онлайн, анимированный gif, конвертация видео gif бесплатно',
 
     // nav
-    'nav.compressor': 'Сжатие',
-    'nav.gif': 'Видео → GIF',
+    'nav.compressor': 'Сжатие видео',
+    'nav.gif': 'Видео в GIF',
 
     // home
     'home.pageTitle': 'Главная',
@@ -84,6 +84,7 @@ export const ui = {
     'gif.download': 'Скачать GIF {size}',
     'gif.newVideo': 'Новое видео',
     'gif.estimatedSize': 'Ожидаемый размер: ~{min} — {max} MB',
+    'gif.regenerate': 'Перегенерировать',
 
     // errors / warnings
     'error.compression': 'Ошибка при сжатии',
@@ -101,7 +102,7 @@ export const ui = {
 
     // nav
     'nav.compressor': 'Compress',
-    'nav.gif': 'Video → GIF',
+    'nav.gif': 'Video to GIF',
 
     'home.pageTitle': 'Home',
     'home.title': 'Compress videos in\u00a0your browser in\u00a0seconds!',
@@ -163,6 +164,7 @@ export const ui = {
     'gif.download': 'Download GIF {size}',
     'gif.newVideo': 'New video',
     'gif.estimatedSize': 'Estimated size: ~{min} — {max} MB',
+    'gif.regenerate': 'Regenerate',
 
     'error.compression': 'Compression error',
     'error.memory': 'Not enough memory to process this video',
