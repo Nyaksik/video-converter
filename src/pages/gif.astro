@@ -1,0 +1,11 @@
+---
+import VideoToGif from '@/components/video-to-gif/VideoToGif.vue'
+import { useTranslations } from '@/i18n'
+import Default from '@/layouts/Default.astro'
+
+const t = useTranslations('ru')
+---
+
+<Default title={t('gif.pageTitle')} description={t('meta.gifDescription')} keywords={t('meta.gifKeywords')}>
+  <VideoToGif client:only="vue" locale="ru" />
+</Default>

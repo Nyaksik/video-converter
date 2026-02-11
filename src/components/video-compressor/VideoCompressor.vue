@@ -34,6 +34,7 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { useI18n } from '@/i18n/vue.ts'
 import { formatSize } from '@/lib/utils'
+import { VALID_VIDEO_TYPES } from '@/lib/video.ts'
 
 import BatchFileList from './BatchFileList.vue'
 import { BatchStatus, Status } from './types.ts'
@@ -93,7 +94,7 @@ const {
 
 const isBatchMode = computed(() => batchFiles.value.length > 0)
 
-const FILE_ACCEPT = 'video/mp4,video/quicktime,video/webm,video/x-matroska'
+const FILE_ACCEPT = VALID_VIDEO_TYPES.join()
 
 function handleFileInput(e: Event) {
   const target = e.target as HTMLInputElement

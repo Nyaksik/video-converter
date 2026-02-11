@@ -26,9 +26,12 @@ const t = useTranslations('ru')
         {t('home.badge.savings')}
       </Badge>
     </div>
-    <div class="flex justify-center">
+    <div class="flex flex-wrap justify-center gap-3">
       <Button as="a" href="/compressor" size="lg" class="text-2xl px-12 h-16">
         {t('home.cta')}
+      </Button>
+      <Button as="a" href="/gif" size="lg" variant="secondary" class="text-2xl px-12 h-16">
+        {t('home.ctaGif')}
       </Button>
     </div>
   </section>

@@ -1,82 +1,48 @@
-import { watchDebounced } from '@vueuse/core'
-import {
-  computed,
-  ref,
-  watch,
-} from 'vue'
+import { computed, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
+import { useCompressionSettings } from '@/composables/useCompressionSettings.ts'
+import { useVideoFile } from '@/composables/useVideoFile.ts'
 import { useI18n } from '@/i18n/vue.ts'
+import { downloadBlob } from '@/lib/video.ts'
 
+import { compressFile, getTargetResolution } from './compressFile.ts'
 import {
-  analyzeVideoFile,
-  compressFile,
-  detectBrowserCodecs,
-  getTargetResolution,
-} from './compressFile.ts'
-import {
-  type Codec,
   Quality,
   Resolution,
   type ResolutionItem,
   Status,
-  type VideoMetaData,
 } from './types.ts'
-
-const availableQuality = [
-  {
-    value: Quality.High,
-    label: 'Fast',
-  },
-  {
-    value: Quality.Medium,
-    label: 'Balance',
-  },
-  {
-    value: Quality.Low,
-    label: 'Strong',
-  },
-]
 
 export function useVideoCompressor(locale?: string) {
   const { t } = useI18n(locale)
 
-  const supportedCodecs = ref<Set<Codec>>(new Set(['h264']))
-  const videoMetadata = ref<VideoMetaData | null>(null)
-  const inputFile = ref<File | null>(null)
-  const outputBlob = ref<Blob | null>(null)
-  const progress = ref(0)
-  const status = ref<Status>(Status.Idle)
-  const codec = ref<Codec>('h264')
-  const quality = ref<Quality>(Quality.Medium)
-  const resolution = ref<Resolution>(Resolution.OG)
-  const previewUrl = ref<string | null>(null)
-  const trimStart = ref(0)
-  const trimEnd = ref(0)
-  const videoRef = ref<HTMLVideoElement>()
-  const removeAudio = ref(false)
+  const {
+    inputFile,
+    outputBlob,
+    progress,
+    status,
+    videoMetadata,
+    previewUrl,
+    videoRef,
+    trimStart,
+    trimEnd,
+    trimStartComputed,
+    trimEndComputed,
+    handleFile,
+    updateTrimValues,
+  } = useVideoFile(locale)
 
-  const availableCodecs = computed(() => {
-    const codecs = [
-      {
-        value: 'h264',
-        label: 'H.264',
-        supported: supportedCodecs.value.has('h264'),
-      },
-      {
-        value: 'vp9',
-        label: 'VP9',
-        supported: supportedCodecs.value.has('vp9'),
-      },
-      {
-        value: 'av1',
-        label: 'AV1',
-        supported: supportedCodecs.value.has('av1'),
-      },
-    ]
-
-    return codecs.filter(c => c.supported)
-  })
+  const {
+    supportedCodecs,
+    codec,
+    quality,
+    resolution,
+    removeAudio,
+    availableCodecs,
+    availableQuality,
+    detectAndSetCodecs,
+  } = useCompressionSettings()
 
   const availableResolutions = computed<ResolutionItem[]>(() => {
     if (!videoMetadata.value) {
@@ -154,62 +120,11 @@ export function useVideoCompressor(locale?: string) {
     }
   })
 
-  const trimStartComputed = computed({
-    get() {
-      return trimStart.value
-    },
-    set(value) {
-      trimStart.value = Math.max(0, Math.min(value, videoMetadata.value?.duration ?? 0))
-    },
-  })
-  const trimEndComputed = computed({
-    get() {
-      return trimEnd.value
-    },
-    set(value) {
-      trimEnd.value = Math.max(0, Math.min(value, videoMetadata.value?.duration ?? 0))
-    },
-  })
+  watch(inputFile, async (file) => {
+    if (!file) return
 
-  watchDebounced(trimStartComputed, (v) => {
-    if (videoRef.value) {
-      videoRef.value.currentTime = v
-    }
-  }, { debounce: 200 })
-
-  watchDebounced(trimEndComputed, (v) => {
-    if (videoRef.value) {
-      videoRef.value.currentTime = v
-    }
-  }, { debounce: 200 })
-
-  watch(inputFile, async (file, oldFile) => {
-    if (oldFile && previewUrl.value) {
-      URL.revokeObjectURL(previewUrl.value)
-    }
-
-    if (!file)
-      return
-
-    trimStart.value = 0
-    trimEnd.value = 0
     removeAudio.value = false
-    previewUrl.value = URL.createObjectURL(file)
-
-    const [metadata, codecs] = await Promise.all([
-      analyzeVideoFile(file).catch(() => null),
-      detectBrowserCodecs(),
-    ])
-
-    if (metadata) {
-      videoMetadata.value = metadata
-      trimEnd.value = metadata.duration
-    }
-
-    supportedCodecs.value = codecs
-    if (!codecs.has(codec.value)) {
-      codec.value = Array.from(codecs)[0] || 'h264'
-    }
+    await detectAndSetCodecs()
   })
 
   async function handleCompress() {
@@ -248,49 +163,7 @@ export function useVideoCompressor(locale?: string) {
 
   function downloadVideo() {
     if (!outputBlob.value) return
-    const url = URL.createObjectURL(outputBlob.value)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `compressed_${codec.value}_${quality.value}.mp4`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  function handleFile(e: Event) {
-    const target = e.target as HTMLInputElement
-    const file = target.files?.[0]
-
-    if (!file) return
-
-    if ('memory' in performance) {
-      const { jsHeapSizeLimit = 0, usedJSHeapSize = 0 } = performance.memory as {
-        jsHeapSizeLimit?: number
-        usedJSHeapSize?: number
-      }
-      const availableMemory = jsHeapSizeLimit - usedJSHeapSize
-
-      if (file.size >= availableMemory) {
-        toast.warning(t('error.memory'), { dismissible: true })
-      }
-    }
-    else if (file.size > 2 * 1024 * 1024 * 1024) {
-      toast.warning(t('error.largeFile'), { dismissible: true })
-    }
-
-    const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska']
-    if (!validTypes.includes(file.type)) {
-      toast.error(t('error.unsupported'), { dismissible: true })
-      return
-    }
-
-    inputFile.value = file
-    outputBlob.value = null
-    status.value = Status.Idle
-  }
-
-  function updateTrimValues(values?: number[]) {
-    trimStartComputed.value = values?.[0] ?? 0
-    trimEndComputed.value = values?.[1] ?? videoMetadata.value?.duration ?? 1
+    downloadBlob(outputBlob.value, `compressed_${codec.value}_${quality.value}.mp4`)
   }
 
   return {

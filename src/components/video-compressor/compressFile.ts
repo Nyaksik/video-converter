@@ -1,4 +1,3 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg'
 import { fetchFile } from '@ffmpeg/util'
 import {
   ALL_FORMATS,
@@ -10,6 +9,8 @@ import {
   Mp4OutputFormat,
   Output,
 } from 'mediabunny'
+
+import { loadFFmpeg } from '@/lib/ffmpeg.ts'
 
 import {
   type Codec,
@@ -42,8 +43,6 @@ const bitsPerPixel = {
   [Quality.Medium]: 0.08,
   [Quality.Low]: 0.05,
 }
-
-let ffmpeg: FFmpeg | null = null
 
 export async function analyzeVideoFile(file: File): Promise<VideoMetaData> {
   return new Promise<VideoMetaData>((resolve, reject) => {
@@ -303,14 +302,6 @@ export async function compressWithWebCodecs(
   }
 
   return new Blob([mp4Buffer], { type: 'video/mp4' })
-}
-
-async function loadFFmpeg(): Promise<FFmpeg> {
-  if (ffmpeg?.loaded) return ffmpeg
-
-  ffmpeg = new FFmpeg()
-  await ffmpeg.load()
-  return ffmpeg
 }
 
 export async function compressWithFFmpeg(
