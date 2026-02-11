@@ -57,6 +57,7 @@ const {
   availableColors,
   availableDithers,
   estimatedSize,
+  maxDuration,
 
   handleConvert,
   downloadGif,
@@ -127,6 +128,9 @@ const FILE_ACCEPT = 'video/mp4,video/quicktime,video/webm,video/x-matroska'
               :step="0.001"
               @update:model-value="updateTrimValues"
             />
+            <p class="text-xs text-muted-foreground">
+              {{ t('gif.maxDuration', { max: maxDuration }) }}
+            </p>
             <div class="grid grid-cols-2 gap-5">
               <Input
                 v-model.number="trimStartComputed"

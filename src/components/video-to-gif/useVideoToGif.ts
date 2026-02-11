@@ -1,4 +1,8 @@
-import { computed, ref } from 'vue'
+import {
+  computed,
+  ref,
+  watch,
+} from 'vue'
 import { toast } from 'vue-sonner'
 
 import { useVideoFile } from '@/composables/useVideoFile.ts'
@@ -14,6 +18,8 @@ import {
   GifFps,
   GifWidth,
 } from './types.ts'
+
+const MAX_GIF_DURATION = 15
 
 export function useVideoToGif(locale?: string) {
   const { t } = useI18n(locale)
@@ -33,6 +39,27 @@ export function useVideoToGif(locale?: string) {
     handleFile,
     updateTrimValues,
   } = useVideoFile(locale)
+
+  // Clamp trimEnd when video is loaded (if longer than max)
+  watch(videoMetadata, (meta) => {
+    if (meta && meta.duration > MAX_GIF_DURATION) {
+      trimEndComputed.value = MAX_GIF_DURATION
+    }
+  })
+
+  // Clamp trimEnd when trimStart moves
+  watch(trimStartComputed, (start) => {
+    if (trimEndComputed.value - start > MAX_GIF_DURATION) {
+      trimEndComputed.value = start + MAX_GIF_DURATION
+    }
+  })
+
+  // Clamp trimEnd when it's set beyond max
+  watch(trimEndComputed, (end) => {
+    if (end - trimStartComputed.value > MAX_GIF_DURATION) {
+      trimEndComputed.value = trimStartComputed.value + MAX_GIF_DURATION
+    }
+  })
 
   const fps = ref<GifFps>(GifFps.F15)
   const width = ref<GifWidth>(GifWidth.W480)
@@ -199,6 +226,8 @@ export function useVideoToGif(locale?: string) {
     availableColors,
     availableDithers,
     estimatedSize,
+
+    maxDuration: MAX_GIF_DURATION,
 
     handleConvert,
     downloadGif,

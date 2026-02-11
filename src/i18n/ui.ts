@@ -84,6 +84,7 @@ export const ui = {
     'gif.download': 'Скачать GIF {size}',
     'gif.newVideo': 'Новое видео',
     'gif.estimatedSize': 'Ожидаемый размер: ~{min} — {max} MB',
+    'gif.maxDuration': 'Максимум {max} сек.',
     'gif.regenerate': 'Перегенерировать',
 
     // errors / warnings
@@ -101,7 +102,7 @@ export const ui = {
     'meta.gifKeywords': 'video to gif, gif converter, mp4 to gif, create gif from video, gif online, animated gif, video to gif free, convert video gif',
 
     // nav
-    'nav.compressor': 'Compress',
+    'nav.compressor': 'Compress video',
     'nav.gif': 'Video to GIF',
 
     'home.pageTitle': 'Home',
@@ -164,6 +165,7 @@ export const ui = {
     'gif.download': 'Download GIF {size}',
     'gif.newVideo': 'New video',
     'gif.estimatedSize': 'Estimated size: ~{min} — {max} MB',
+    'gif.maxDuration': 'Max {max} sec.',
     'gif.regenerate': 'Regenerate',
 
     'error.compression': 'Compression error',
