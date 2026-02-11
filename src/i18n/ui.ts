@@ -12,8 +12,14 @@ export const ui = {
     // meta
     'meta.homeDescription': 'Бесплатный онлайн-компрессор видео. Сжимайте MP4, MOV, WebM и MKV прямо в браузере без загрузки на сервер. Без водяных знаков, до 90% экономии размера.',
     'meta.compDescription': 'Сжатие видео онлайн — выберите кодек (H.264, VP9, AV1), качество и разрешение. Обработка прямо в браузере через WebCodecs, быстро и бесплатно.',
+    'meta.gifDescription': 'Конвертация видео в\u00a0GIF онлайн. Превращайте MP4, MOV, WebM в\u00a0анимированные GIF прямо в\u00a0браузере. Настройка FPS, размера, цветов и\u00a0dithering.',
     'meta.homeKeywords': 'сжатие видео, сжать видео онлайн, компрессор видео, уменьшить размер видео, конвертер видео, webcodecs, сжать mp4, сжать видео бесплатно, видео компрессор онлайн, video compressor',
     'meta.compKeywords': 'сжать видео, компрессор видео онлайн, сжатие mp4, сжатие webm, h264, vp9, av1, уменьшить видео без потери качества, webcodecs, обрезать видео онлайн',
+    'meta.gifKeywords': 'видео в gif, конвертер gif, mp4 в gif, видео в гифку, создать gif из видео, gif онлайн, анимированный gif, конвертация видео gif бесплатно',
+
+    // nav
+    'nav.compressor': 'Сжатие видео',
+    'nav.gif': 'Видео в GIF',
 
     // home
     'home.pageTitle': 'Главная',
@@ -23,6 +29,7 @@ export const ui = {
     'home.badge.free': 'Бесплатно',
     'home.badge.savings': 'До\u00a090% экономии размера',
     'home.cta': 'Сжать видео сейчас!',
+    'home.ctaGif': 'Видео в\u00a0GIF',
 
     // compressor
     'comp.pageTitle': 'Компрессор',
@@ -56,6 +63,30 @@ export const ui = {
     'batch.allDone': 'Все файлы сжаты!',
     'batch.maxFiles': 'Максимум {max} файлов',
 
+    // gif
+    'gif.pageTitle': 'Видео в GIF',
+    'gif.tagline': 'Преврати видео в\u00a0GIF!',
+    'gif.addVideo': 'Добавь видео',
+    'gif.formats': 'Поддержка MP4, MOV, WebM, MKV',
+    'gif.dropHint': 'Нажми или перетащи видео',
+    'gif.settings': 'Настройки GIF',
+    'gif.fps': 'Кадров в секунду',
+    'gif.width': 'Ширина',
+    'gif.widthOriginal': 'Оригинал',
+    'gif.colors': 'Цвета',
+    'gif.dither': 'Dithering',
+    'gif.ditherNone': 'Нет',
+    'gif.ditherFloyd': 'Floyd-Steinberg',
+    'gif.ditherBayer': 'Bayer',
+    'gif.convert': 'Конвертировать в GIF',
+    'gif.processing': 'Конвертация {progress}%',
+    'gif.done': 'Готово',
+    'gif.download': 'Скачать GIF {size}',
+    'gif.newVideo': 'Новое видео',
+    'gif.estimatedSize': 'Ожидаемый размер: ~{min} — {max} MB',
+    'gif.maxDuration': 'Максимум {max} сек.',
+    'gif.regenerate': 'Перегенерировать',
+
     // errors / warnings
     'error.compression': 'Ошибка при сжатии',
     'error.memory': 'Недостаточно памяти для обработки видео',
@@ -65,8 +96,14 @@ export const ui = {
   en: {
     'meta.homeDescription': 'Free online video compressor. Compress MP4, MOV, WebM and MKV right in your browser with no server uploads. No watermarks, up to 90% size savings.',
     'meta.compDescription': 'Compress video online — choose codec (H.264, VP9, AV1), quality and resolution. Processed in your browser via WebCodecs, fast and free.',
+    'meta.gifDescription': 'Convert video to\u00a0GIF online. Turn MP4, MOV, WebM into animated GIFs right in\u00a0your browser. Customize FPS, size, colors and\u00a0dithering.',
     'meta.homeKeywords': 'video compression, compress video online, video compressor, reduce video size, video converter, webcodecs, compress mp4, free video compressor, online video compressor, shrink video file',
     'meta.compKeywords': 'compress video, online video compressor, mp4 compression, webm compression, h264, vp9, av1, reduce video size without quality loss, webcodecs, trim video online',
+    'meta.gifKeywords': 'video to gif, gif converter, mp4 to gif, create gif from video, gif online, animated gif, video to gif free, convert video gif',
+
+    // nav
+    'nav.compressor': 'Compress video',
+    'nav.gif': 'Video to GIF',
 
     'home.pageTitle': 'Home',
     'home.title': 'Compress videos in\u00a0your browser in\u00a0seconds!',
@@ -75,6 +112,7 @@ export const ui = {
     'home.badge.free': 'Free',
     'home.badge.savings': 'Up\u00a0to 90% size savings',
     'home.cta': 'Compress video now!',
+    'home.ctaGif': 'Video to\u00a0GIF',
 
     'comp.pageTitle': 'Compressor',
     'comp.tagline': 'Compress your video in seconds!',
@@ -105,6 +143,30 @@ export const ui = {
     'batch.cancel': 'Cancel',
     'batch.allDone': 'All files compressed!',
     'batch.maxFiles': 'Maximum {max} files',
+
+    // gif
+    'gif.pageTitle': 'Video to GIF',
+    'gif.tagline': 'Turn video into\u00a0GIF!',
+    'gif.addVideo': 'Add a video',
+    'gif.formats': 'Supports MP4, MOV, WebM, MKV',
+    'gif.dropHint': 'Click or drag video here',
+    'gif.settings': 'GIF settings',
+    'gif.fps': 'Frames per second',
+    'gif.width': 'Width',
+    'gif.widthOriginal': 'Original',
+    'gif.colors': 'Colors',
+    'gif.dither': 'Dithering',
+    'gif.ditherNone': 'None',
+    'gif.ditherFloyd': 'Floyd-Steinberg',
+    'gif.ditherBayer': 'Bayer',
+    'gif.convert': 'Convert to GIF',
+    'gif.processing': 'Converting {progress}%',
+    'gif.done': 'Done',
+    'gif.download': 'Download GIF {size}',
+    'gif.newVideo': 'New video',
+    'gif.estimatedSize': 'Estimated size: ~{min} — {max} MB',
+    'gif.maxDuration': 'Max {max} sec.',
+    'gif.regenerate': 'Regenerate',
 
     'error.compression': 'Compression error',
     'error.memory': 'Not enough memory to process this video',

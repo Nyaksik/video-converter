@@ -5,17 +5,25 @@ import LogoInvertedImage from '@/assets/images/logo-inverted.png'
 import LogoImage from '@/assets/images/logo.png'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { getLangFromUrl } from '@/i18n'
+import { getLangFromUrl, useTranslations } from '@/i18n'
 
 const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const prefix = lang === 'ru' ? '' : `/${lang}`
 ---
 
 <header class="py-5">
   <div class="container flex items-center justify-between gap-5 lg:gap-10">
-    <a href="/">
-      <Image class="dark:hidden object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoImage} alt="Logo" width="200" height="200" />
-      <Image class="not-dark:hidden object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoInvertedImage} alt="Logo" width="200" height="200" />
-    </a>
+    <div class="flex items-center gap-5">
+      <a href="/">
+        <Image class="dark:hidden object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoImage} alt="Logo" width="200" height="200" />
+        <Image class="not-dark:hidden object-contain w-[75px] lg:w-[100px] h-[80px]" src={LogoInvertedImage} alt="Logo" width="200" height="200" />
+      </a>
+      <nav class="flex items-center gap-4 text-sm font-medium">
+        <a href={`${prefix}/compressor`} class="hover:text-blue-500 transition-colors">{t('nav.compressor')}</a>
+        <a href={`${prefix}/gif`} class="hover:text-blue-500 transition-colors">{t('nav.gif')}</a>
+      </nav>
+    </div>
     <div class="flex items-center gap-1">
       <LanguageSwitcher client:load locale={lang} />
       <ThemeToggle client:load />

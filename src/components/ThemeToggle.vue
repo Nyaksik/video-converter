@@ -4,7 +4,11 @@ import { Moon, Sun } from 'lucide-vue-next'
 
 import { Button } from '@/components/ui/button'
 
-const isDark = useDark()
+const isDark = useDark({
+  storageKey: 'theme',
+  valueDark: 'dark',
+  valueLight: 'light',
+})
 const toggleDark = useToggle(isDark)
 </script>
 

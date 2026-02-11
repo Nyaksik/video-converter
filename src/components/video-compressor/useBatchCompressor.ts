@@ -2,36 +2,37 @@ import { zipSync } from 'fflate'
 import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
 
+import { useCompressionSettings } from '@/composables/useCompressionSettings.ts'
 import { useI18n } from '@/i18n/vue.ts'
+import { downloadBlob, VALID_VIDEO_TYPES } from '@/lib/video.ts'
 
-import {
-  analyzeVideoFile,
-  compressFile,
-  detectBrowserCodecs,
-} from './compressFile.ts'
+import { analyzeVideoFile, compressFile } from './compressFile.ts'
 import {
   type BatchFileItem,
   BatchFileStatus,
   BatchStatus,
-  type Codec,
-  Quality,
   Resolution,
 } from './types.ts'
 
 const MAX_BATCH_FILES = 10
-const VALID_TYPES = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska']
 
 export function useBatchCompressor(locale?: string) {
   const { t } = useI18n(locale)
 
+  const {
+    supportedCodecs,
+    codec,
+    quality,
+    resolution,
+    removeAudio,
+    availableCodecs,
+    availableQuality,
+    detectAndSetCodecs,
+  } = useCompressionSettings()
+
   const files = ref<BatchFileItem[]>([])
   const batchStatus = ref<BatchStatus>(BatchStatus.Idle)
   const currentFileId = ref<string | null>(null)
-  const supportedCodecs = ref<Set<Codec>>(new Set(['h264']))
-  const codec = ref<Codec>('h264')
-  const quality = ref<Quality>(Quality.Medium)
-  const resolution = ref<Resolution>(Resolution.OG)
-  const removeAudio = ref(false)
 
   let codecsDetected = false
   let cancelled = false
@@ -51,28 +52,6 @@ export function useBatchCompressor(locale?: string) {
   const totalOutputSize = computed(() =>
     files.value.reduce((sum, f) => sum + (f.outputBlob?.size ?? 0), 0),
   )
-
-  const availableCodecs = computed(() => {
-    const codecs = [
-      {
-        value: 'h264',
-        label: 'H.264',
-        supported: supportedCodecs.value.has('h264'),
-      },
-      {
-        value: 'vp9',
-        label: 'VP9',
-        supported: supportedCodecs.value.has('vp9'),
-      },
-      {
-        value: 'av1',
-        label: 'AV1',
-        supported: supportedCodecs.value.has('av1'),
-      },
-    ]
-
-    return codecs.filter(c => c.supported)
-  })
 
   const availableResolutions = computed(() => {
     const maxHeight = Math.max(...files.value.map(f => f.metadata?.height ?? 0), 0)
@@ -109,7 +88,7 @@ export function useBatchCompressor(locale?: string) {
   async function addFiles(fileList: FileList | File[]) {
     const incoming = Array.from(fileList)
     const remaining = MAX_BATCH_FILES - files.value.length
-    const validFiles = incoming.filter(f => VALID_TYPES.includes(f.type))
+    const validFiles = incoming.filter(f => VALID_VIDEO_TYPES.includes(f.type))
 
     if (validFiles.length === 0) {
       toast.error(t('error.unsupported'), { dismissible: true })
@@ -140,11 +119,7 @@ export function useBatchCompressor(locale?: string) {
     files.value.push(...newItems)
 
     if (!codecsDetected) {
-      const codecs = await detectBrowserCodecs()
-      supportedCodecs.value = codecs
-      if (!codecs.has(codec.value)) {
-        codec.value = Array.from(codecs)[0] || 'h264'
-      }
+      await detectAndSetCodecs()
       codecsDetected = true
     }
 
@@ -247,12 +222,10 @@ export function useBatchCompressor(locale?: string) {
     const item = files.value.find(f => f.id === id)
     if (!item?.outputBlob) return
 
-    const url = URL.createObjectURL(item.outputBlob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `compressed_${item.file.name.replace(/\.[^.]+$/, '')}_${codec.value}_${quality.value}.mp4`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadBlob(
+      item.outputBlob,
+      `compressed_${item.file.name.replace(/\.[^.]+$/, '')}_${codec.value}_${quality.value}.mp4`,
+    )
   }
 
   function downloadAll() {
@@ -270,12 +243,7 @@ export function useBatchCompressor(locale?: string) {
     Promise.all(promises).then(() => {
       const zipped = zipSync(zipData)
       const blob = new Blob([zipped], { type: 'application/zip' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `clipcrush_batch.zip`
-      a.click()
-      URL.revokeObjectURL(url)
+      downloadBlob(blob, 'clipcrush_batch.zip')
     })
   }
 
@@ -301,6 +269,7 @@ export function useBatchCompressor(locale?: string) {
     removeAudio,
     supportedCodecs,
     availableCodecs,
+    availableQuality,
     availableResolutions,
     totalCount,
     completedCount,
