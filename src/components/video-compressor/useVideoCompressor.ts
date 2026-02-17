@@ -6,9 +6,12 @@ import { useVideoFile } from '@/composables/useVideoFile.ts'
 import { useI18n } from '@/i18n/vue.ts'
 import { downloadBlob } from '@/lib/video.ts'
 
-import { compressFile, getTargetResolution } from './compressFile.ts'
 import {
-  Quality,
+  compressFile,
+  getTargetBitrate,
+  getTargetResolution,
+} from './compressFile.ts'
+import {
   Resolution,
   type ResolutionItem,
   Status,
@@ -67,21 +70,21 @@ export function useVideoCompressor(locale?: string) {
         value: Resolution.FullHD,
         label: '1080p',
         description: 'Full HD',
-        disabled: height < 1080,
+        disabled: height <= 1080,
         pixels: 1080,
       },
       {
         value: Resolution.HD,
         label: '720p',
         description: 'HD',
-        disabled: height < 720,
+        disabled: height <= 720,
         pixels: 720,
       },
       {
         value: Resolution.SD,
         label: '480p',
         description: 'SD',
-        disabled: height < 480,
+        disabled: height <= 480,
         pixels: 480,
       },
     ]
@@ -95,28 +98,28 @@ export function useVideoCompressor(locale?: string) {
     const duration = trimEnd.value - trimStart.value
     if (duration <= 0) return null
 
-    const trimRatio = duration / videoMetadata.value.duration
-    const originalSize = inputFile.value.size
-
-    const qualityFactor = {
-      [Quality.High]: 0.45,
-      [Quality.Medium]: 0.4,
-      [Quality.Low]: 0.25,
-    }
-
     const targetRes = getTargetResolution(videoMetadata.value, resolution.value)
-    const originalPixels = videoMetadata.value.width * videoMetadata.value.height
-    const targetPixels = targetRes.width * targetRes.height
-    const pixelRatio = Math.min(1, Math.sqrt(targetPixels / originalPixels))
-    const audioFactor = removeAudio.value ? 0.9 : 1
+    const originalBitrate = (inputFile.value.size * 8) / videoMetadata.value.duration
 
-    const base = originalSize * trimRatio * qualityFactor[quality.value] * pixelRatio * audioFactor
-    const min = base
-    const max = base * 1.5
+    const isHighBitrateSource = originalBitrate > 50_000_000
+
+    const videoBitrate = getTargetBitrate(
+      targetRes.width,
+      targetRes.height,
+      quality.value,
+      isHighBitrateSource ? undefined : originalBitrate,
+    )
+
+    const audioBitrate = removeAudio.value ? 0 : 128_000
+    const totalBitrate = videoBitrate + audioBitrate
+    const estimatedBytes = (totalBitrate * duration) / 8
+    const withOverhead = estimatedBytes * 1.02
+
+    const [minFactor, maxFactor] = isHighBitrateSource ? [0.4, 0.85] : [0.6, 1.0]
 
     return {
-      min: Math.max(0.01, min / 1024 / 1024),
-      max: Math.max(0.01, max / 1024 / 1024),
+      min: Math.max(0.01, (withOverhead * minFactor) / 1024 / 1024),
+      max: Math.max(0.01, (withOverhead * maxFactor) / 1024 / 1024),
     }
   })
 
@@ -134,7 +137,7 @@ export function useVideoCompressor(locale?: string) {
     progress.value = 0
 
     try {
-      const blob = await compressFile(
+      outputBlob.value = await compressFile(
         inputFile.value,
         videoMetadata.value,
         {
@@ -150,8 +153,6 @@ export function useVideoCompressor(locale?: string) {
           end: trimEnd.value,
         },
       )
-
-      outputBlob.value = blob
       status.value = Status.Done
     }
     catch (error) {

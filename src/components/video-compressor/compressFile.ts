@@ -166,12 +166,19 @@ export function getTargetBitrate(
   width: number,
   height: number,
   quality: Quality,
+  originalBitrate?: number,
 ): number {
   const pixels = width * height
   const frameRate = 30
   const targetBitrate = pixels * bitsPerPixel[quality] * frameRate
 
-  return Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
+  let bitrate = Math.floor(Math.max(500_000, Math.min(10_000_000, targetBitrate)))
+
+  if (originalBitrate) {
+    bitrate = Math.min(bitrate, Math.floor(originalBitrate * 0.85))
+  }
+
+  return Math.max(500_000, bitrate)
 }
 
 export function buildConversionConfig(
@@ -181,7 +188,7 @@ export function buildConversionConfig(
     end: number },
 ): Partial<Pick<ConversionOptions, 'video' | 'audio' | 'trim'>> {
   const targetRes = getTargetResolution(metadata, settings.resolution)
-  const videoBitrate = getTargetBitrate(targetRes.width, targetRes.height, settings.quality)
+  const videoBitrate = getTargetBitrate(targetRes.width, targetRes.height, settings.quality, metadata.estimatedBitrate)
 
   const codecMap: Record<Codec, 'avc' | 'vp9' | 'av1'> = {
     h264: 'avc',
