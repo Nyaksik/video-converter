@@ -18,18 +18,53 @@ export const ui = {
     'meta.gifKeywords': 'видео в gif, конвертер gif, mp4 в gif, видео в гифку, создать gif из видео, gif онлайн, анимированный gif, конвертация видео gif бесплатно',
 
     // nav
+    'nav.logoAlt': 'ClipCrush — онлайн компрессор видео',
     'nav.compressor': 'Сжатие видео',
     'nav.gif': 'Видео в GIF',
 
     // home
     'home.pageTitle': 'Главная',
     'home.title': 'Сжимай видео в\u00a0браузере за\u00a0секунды!',
+    'home.subtitle': 'Бесплатный онлайн-компрессор MP4, MOV, WebM и\u00a0MKV',
     'home.badge.noWatermarks': 'Без водяных знаков',
     'home.badge.noUpload': 'Без загрузки видео на\u00a0сервер',
     'home.badge.free': 'Бесплатно',
     'home.badge.savings': 'До\u00a090% экономии размера',
     'home.cta': 'Сжать видео сейчас!',
     'home.ctaGif': 'Видео в\u00a0GIF',
+
+    // how it works
+    'home.howTitle': 'Как это работает',
+    'home.step1Title': 'Загрузи видео',
+    'home.step1Desc': 'Перетащи файл или выбери с\u00a0устройства. Поддержка MP4, MOV, WebM и\u00a0MKV.',
+    'home.step2Title': 'Настрой параметры',
+    'home.step2Desc': 'Выбери кодек, степень сжатия и\u00a0разрешение. Или оставь настройки по\u00a0умолчанию.',
+    'home.step3Title': 'Скачай результат',
+    'home.step3Desc': 'Готовое видео скачивается прямо из\u00a0браузера. Файл никуда не\u00a0загружается.',
+
+    // why clipcrush
+    'home.whyTitle': 'Почему ClipCrush',
+    'home.why1Title': 'Без загрузки на\u00a0сервер',
+    'home.why1Desc': 'Видео обрабатывается прямо в\u00a0браузере через WebCodecs. Ваши файлы никуда не\u00a0отправляются.',
+    'home.why2Title': 'Бесплатно и\u00a0без водяных знаков',
+    'home.why2Desc': 'Никаких подписок, скрытых платежей и\u00a0водяных знаков. Полностью бесплатный инструмент.',
+    'home.why3Title': 'До\u00a090% экономии размера',
+    'home.why3Desc': 'Современные кодеки (H.264, VP9, AV1) позволяют существенно уменьшить файл с\u00a0минимальной потерей качества.',
+    'home.why4Title': 'Поддержка всех форматов',
+    'home.why4Desc': 'Работает с\u00a0MP4, MOV, WebM и\u00a0MKV. Конвертируйте между форматами или сжимайте в\u00a0исходном.',
+
+    // faq
+    'home.faqTitle': 'Частые вопросы',
+    'home.faq1Q': 'Как сжать видео без потери качества?',
+    'home.faq1A': 'Выберите умеренную степень сжатия и\u00a0современный кодек (VP9 или AV1). ClipCrush позволяет визуально контролировать результат перед скачиванием.',
+    'home.faq2Q': 'Безопасно ли сжимать видео онлайн?',
+    'home.faq2A': 'Да. ClipCrush обрабатывает видео прямо в\u00a0вашем браузере — файлы не\u00a0загружаются ни\u00a0на\u00a0какой сервер. Ваши данные остаются только у\u00a0вас.',
+    'home.faq3Q': 'Какие форматы видео поддерживаются?',
+    'home.faq3A': 'ClipCrush поддерживает MP4, MOV, WebM и\u00a0MKV. Вы\u00a0можете сжимать видео или конвертировать между форматами.',
+    'home.faq4Q': 'Есть ли ограничения по\u00a0размеру файла?',
+    'home.faq4A': 'Ограничение зависит от\u00a0оперативной памяти вашего устройства. Обычно файлы до\u00a02\u00a0ГБ обрабатываются без проблем.',
+    'home.faq5Q': 'Работает ли на\u00a0телефоне?',
+    'home.faq5A': 'Да, ClipCrush работает на\u00a0любом устройстве с\u00a0современным браузером — смартфоне, планшете или компьютере.',
 
     // compressor
     'comp.pageTitle': 'Компрессор',
@@ -102,17 +137,52 @@ export const ui = {
     'meta.gifKeywords': 'video to gif, gif converter, mp4 to gif, create gif from video, gif online, animated gif, video to gif free, convert video gif',
 
     // nav
+    'nav.logoAlt': 'ClipCrush — online video compressor',
     'nav.compressor': 'Compress video',
     'nav.gif': 'Video to GIF',
 
     'home.pageTitle': 'Home',
     'home.title': 'Compress videos in\u00a0your browser in\u00a0seconds!',
+    'home.subtitle': 'Free online MP4, MOV, WebM & MKV compressor',
     'home.badge.noWatermarks': 'No watermarks',
     'home.badge.noUpload': 'No server uploads',
     'home.badge.free': 'Free',
     'home.badge.savings': 'Up\u00a0to 90% size savings',
     'home.cta': 'Compress video now!',
     'home.ctaGif': 'Video to\u00a0GIF',
+
+    // how it works
+    'home.howTitle': 'How it works',
+    'home.step1Title': 'Upload video',
+    'home.step1Desc': 'Drag & drop or select a\u00a0file from your device. Supports MP4, MOV, WebM and\u00a0MKV.',
+    'home.step2Title': 'Adjust settings',
+    'home.step2Desc': 'Pick a\u00a0codec, compression level and resolution. Or keep the defaults.',
+    'home.step3Title': 'Download result',
+    'home.step3Desc': 'The compressed video downloads straight from your browser. Nothing is\u00a0uploaded anywhere.',
+
+    // why clipcrush
+    'home.whyTitle': 'Why ClipCrush',
+    'home.why1Title': 'No server uploads',
+    'home.why1Desc': 'Video is processed right in\u00a0your browser via WebCodecs. Your files never leave your device.',
+    'home.why2Title': 'Free & no\u00a0watermarks',
+    'home.why2Desc': 'No subscriptions, hidden fees or watermarks. A\u00a0completely free tool.',
+    'home.why3Title': 'Up to 90% size savings',
+    'home.why3Desc': 'Modern codecs (H.264, VP9, AV1) let you dramatically shrink files with minimal quality loss.',
+    'home.why4Title': 'All formats supported',
+    'home.why4Desc': 'Works with MP4, MOV, WebM and MKV. Convert between formats or compress in\u00a0the original one.',
+
+    // faq
+    'home.faqTitle': 'Frequently asked questions',
+    'home.faq1Q': 'How to compress video without losing quality?',
+    'home.faq1A': 'Choose a\u00a0moderate compression level and a\u00a0modern codec (VP9 or AV1). ClipCrush lets you preview the result before downloading.',
+    'home.faq2Q': 'Is it safe to compress video online?',
+    'home.faq2A': 'Yes. ClipCrush processes video right in\u00a0your browser — files are never uploaded to\u00a0any server. Your data stays on\u00a0your device.',
+    'home.faq3Q': 'Which video formats are supported?',
+    'home.faq3A': 'ClipCrush supports MP4, MOV, WebM and\u00a0MKV. You can compress video or convert between formats.',
+    'home.faq4Q': 'Are there file size limits?',
+    'home.faq4A': 'The limit depends on\u00a0your device\'s RAM. Typically files up\u00a0to 2\u00a0GB are processed without issues.',
+    'home.faq5Q': 'Does it work on mobile?',
+    'home.faq5A': 'Yes, ClipCrush works on\u00a0any device with a\u00a0modern browser — smartphone, tablet or desktop.',
 
     'comp.pageTitle': 'Compressor',
     'comp.tagline': 'Compress your video in seconds!',

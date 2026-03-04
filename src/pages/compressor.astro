@@ -3,9 +3,27 @@ import VideoCompressor from '@/components/video-compressor/VideoCompressor.vue'
 import { useTranslations } from '@/i18n'
 import Default from '@/layouts/Default.astro'
 
+import type { WithContext } from 'schema-dts'
+
 const t = useTranslations('ru')
+
+const schema: WithContext<import('schema-dts').WebApplication> = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  'name': `ClipCrush — ${t('comp.pageTitle')}`,
+  'url': 'https://clipcrush.online/compressor',
+  'description': t('meta.compDescription'),
+  'applicationCategory': 'MultimediaApplication',
+  'operatingSystem': 'Any',
+  'offers': {
+    '@type': 'Offer',
+    'price': '0',
+    'priceCurrency': 'USD',
+  },
+  'inLanguage': 'ru',
+}
 ---
 
-<Default title={t('comp.pageTitle')} description={t('meta.compDescription')} keywords={t('meta.compKeywords')}>
+<Default title={t('comp.pageTitle')} description={t('meta.compDescription')} keywords={t('meta.compKeywords')} schema={schema}>
   <VideoCompressor client:only="vue" locale="ru" />
 </Default>
