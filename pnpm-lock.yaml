@@ -41,12 +41,21 @@ importers:
       astro-font:
         specifier: ^1.1.0
         version: 1.1.0
+      astro-og-canvas:
+        specifier: ^0.10.1
+        version: 0.10.1(astro@5.17.1(jiti@2.6.1)(lightningcss@1.30.2)(rollup@2.79.2)(terser@5.46.0)(typescript@5.9.3)(yaml@2.8.2))
       astro-robots-txt:
         specifier: ^1.0.0
         version: 1.0.0
       astro-seo:
         specifier: ^1.1.0
         version: 1.1.0(prettier@3.8.1)(typescript@5.9.3)
+      astro-seo-schema:
+        specifier: ^5.2.0
+        version: 5.2.0(astro@5.17.1(jiti@2.6.1)(lightningcss@1.30.2)(rollup@2.79.2)(terser@5.46.0)(typescript@5.9.3)(yaml@2.8.2))(schema-dts@1.1.5)
+      canvaskit-wasm:
+        specifier: ^0.40.0
+        version: 0.40.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -120,6 +129,9 @@ importers:
       lint-staged:
         specifier: ^16.2.7
         version: 16.2.7
+      schema-dts:
+        specifier: ^1.1.5
+        version: 1.1.5
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -1923,6 +1935,9 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  '@webgpu/types@0.1.21':
+    resolution: {integrity: sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -2010,8 +2025,19 @@ packages:
   astro-font@1.1.0:
     resolution: {integrity: sha512-hj1A0MkaJTeaArBpf1m9s4Nxu1Bn9h0QiEPeR9Dfjle25pT4CH4higzuadWzCRSvhGO2SzbM11YwZEF+cmLDxg==}
 
+  astro-og-canvas@0.10.1:
+    resolution: {integrity: sha512-cUjsWIOkDBi9Bfkgta1Cr45m2UnTX/jW+tK406SVcD1idhqIHrGD+M5qtwGcJ6OanHeWSgyHGmzQuzELGAwPKg==}
+    peerDependencies:
+      astro: ^5.0.0 || ^6.0.0-alpha
+
   astro-robots-txt@1.0.0:
     resolution: {integrity: sha512-6JQSLid4gMhoWjOm85UHLkgrw0+hHIjnJVIUqxjU2D6feKlVyYukMNYjH44ZDZBK1P8hNxd33PgWlHzCASvedA==}
+
+  astro-seo-schema@5.2.0:
+    resolution: {integrity: sha512-Qj8xQuBMuxlzahV9z8Eav7itAVDTZVoC7CxMnPtgBIHzfWZCRfRoIepwmuPcR5qgM8H3lcbM53JMFJioxKUuiw==}
+    peerDependencies:
+      astro: ^5.0.0
+      schema-dts: ^1.1.0
 
   astro-seo@1.1.0:
     resolution: {integrity: sha512-G6LDNDyga30o+52v58jU7C35n3cORUzk7RSuY+xf/ZRbW6JiNplyaOO1VoYVKO+xzYNaBcxqNln2RFRR/wgJNQ==}
@@ -2128,6 +2154,9 @@ packages:
 
   caniuse-lite@1.0.30001767:
     resolution: {integrity: sha512-34+zUAMhSH+r+9eKmYG+k2Rpt8XttfE4yXAjoZvkAPs15xcYQhyBYdalJ65BzivAvGRMViEjy6oKr/S91loekQ==}
+
+  canvaskit-wasm@0.40.0:
+    resolution: {integrity: sha512-Od2o+ZmoEw9PBdN/yCGvzfu0WVqlufBPEWNG452wY7E9aT8RBE+ChpZF526doOlg7zumO4iCS+RAeht4P0Gbpw==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -3803,6 +3832,9 @@ packages:
   sax@1.4.4:
     resolution: {integrity: sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==}
     engines: {node: '>=11.0.0'}
+
+  schema-dts@1.1.5:
+    resolution: {integrity: sha512-RJr9EaCmsLzBX2NDiO5Z3ux2BVosNZN5jo0gWgsyKvxKIUL5R3swNvoorulAeL9kLB0iTSX7V6aokhla2m7xbg==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -6562,6 +6594,8 @@ snapshots:
     dependencies:
       vue: 3.5.27(typescript@5.9.3)
 
+  '@webgpu/types@0.1.21': {}
+
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
       acorn: 8.15.0
@@ -6657,10 +6691,22 @@ snapshots:
 
   astro-font@1.1.0: {}
 
+  astro-og-canvas@0.10.1(astro@5.17.1(jiti@2.6.1)(lightningcss@1.30.2)(rollup@2.79.2)(terser@5.46.0)(typescript@5.9.3)(yaml@2.8.2)):
+    dependencies:
+      astro: 5.17.1(jiti@2.6.1)(lightningcss@1.30.2)(rollup@2.79.2)(terser@5.46.0)(typescript@5.9.3)(yaml@2.8.2)
+      canvaskit-wasm: 0.40.0
+      deterministic-object-hash: 2.0.2
+      entities: 7.0.1
+
   astro-robots-txt@1.0.0:
     dependencies:
       valid-filename: 4.0.0
       zod: 3.25.76
+
+  astro-seo-schema@5.2.0(astro@5.17.1(jiti@2.6.1)(lightningcss@1.30.2)(rollup@2.79.2)(terser@5.46.0)(typescript@5.9.3)(yaml@2.8.2))(schema-dts@1.1.5):
+    dependencies:
+      astro: 5.17.1(jiti@2.6.1)(lightningcss@1.30.2)(rollup@2.79.2)(terser@5.46.0)(typescript@5.9.3)(yaml@2.8.2)
+      schema-dts: 1.1.5
 
   astro-seo@1.1.0(prettier@3.8.1)(typescript@5.9.3):
     dependencies:
@@ -6885,6 +6931,10 @@ snapshots:
   camelcase@8.0.0: {}
 
   caniuse-lite@1.0.30001767: {}
+
+  canvaskit-wasm@0.40.0:
+    dependencies:
+      '@webgpu/types': 0.1.21
 
   ccount@2.0.1: {}
 
@@ -8896,6 +8946,8 @@ snapshots:
       is-regex: 1.2.1
 
   sax@1.4.4: {}
+
+  schema-dts@1.1.5: {}
 
   semver@6.3.1: {}
 

@@ -3,9 +3,27 @@ import VideoToGif from '@/components/video-to-gif/VideoToGif.vue'
 import { useTranslations } from '@/i18n'
 import Default from '@/layouts/Default.astro'
 
+import type { WithContext } from 'schema-dts'
+
 const t = useTranslations('en')
+
+const schema: WithContext<import('schema-dts').WebApplication> = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  'name': `ClipCrush — ${t('gif.pageTitle')}`,
+  'url': 'https://clipcrush.online/en/gif',
+  'description': t('meta.gifDescription'),
+  'applicationCategory': 'MultimediaApplication',
+  'operatingSystem': 'Any',
+  'offers': {
+    '@type': 'Offer',
+    'price': '0',
+    'priceCurrency': 'USD',
+  },
+  'inLanguage': 'en',
+}
 ---
 
-<Default title={t('gif.pageTitle')} description={t('meta.gifDescription')} keywords={t('meta.gifKeywords')}>
+<Default title={t('gif.pageTitle')} description={t('meta.gifDescription')} keywords={t('meta.gifKeywords')} schema={schema}>
   <VideoToGif client:only="vue" locale="en" />
 </Default>
