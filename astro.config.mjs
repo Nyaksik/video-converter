@@ -25,12 +25,12 @@ export default defineConfig({
       PUBLIC_SITE_NAME: envField.string({
         context: 'server',
         access: 'public',
-        default: PUBLIC_SITE_NAME,
+        default: PUBLIC_SITE_NAME ?? '',
       }),
       PUBLIC_INFO_EMAIL: envField.string({
         context: 'server',
         access: 'public',
-        default: PUBLIC_INFO_EMAIL,
+        default: PUBLIC_INFO_EMAIL ?? '',
       }),
       PUBLIC_METRIKA: envField.boolean({
         context: 'server',
