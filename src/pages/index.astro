@@ -7,6 +7,7 @@ import Default from '@/layouts/Default.astro'
 import type { WithContext } from 'schema-dts'
 
 const t = useTranslations('ru')
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 const siteSchema: WithContext<import('schema-dts').WebSite> = {
   '@context': 'https://schema.org',
@@ -108,7 +109,7 @@ const advantages = [
       {t('home.subtitle')}
     </h2>
     <div class="flex flex-wrap justify-center gap-3">
-      <Button as="a" href="/compressor" size="lg" class="text-2xl px-12 h-16">
+      <Button as="a" href={`${base}/compressor`} size="lg" class="text-2xl px-12 h-16">
         {t('home.cta')}
       </Button>
     </div>

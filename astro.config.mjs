@@ -9,13 +9,13 @@ import { defineConfig, envField } from 'astro/config'
 import { loadEnv } from 'vite'
 
 const {
-  PUBLIC_SITE_URL, PUBLIC_SITE_NAME, PUBLIC_INFO_EMAIL, PUBLIC_METRIKA,
+  PUBLIC_SITE_URL, PUBLIC_SITE_NAME, PUBLIC_INFO_EMAIL, PUBLIC_METRIKA, BASE_PATH,
 } = loadEnv(process.env.NODE_ENV ?? '', process.cwd(), '')
 
 // https://astro.build/config
 export default defineConfig({
   site: PUBLIC_SITE_URL,
-  base: '/video-converter',
+  base: BASE_PATH,
   i18n: {
     locales: ['ru', 'en'],
     defaultLocale: 'ru',

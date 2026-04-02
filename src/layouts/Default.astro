@@ -23,6 +23,7 @@ const {
   title, description, keywords, schema,
 } = Astro.props
 const lang = getLangFromUrl(Astro.url)
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 const fullTitle = `${title} | ${PUBLIC_SITE_NAME}`
 const canonicalUrl = Astro.url.href
 const pagePath = Astro.url.pathname.replace(/^\//, '').replace(/\/$/, '') || 'index'
@@ -66,16 +67,16 @@ const metrikaScript = `
       }}
     />
     <meta charset="utf-8" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="manifest" href="/manifest.webmanifest" >
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="sitemap" href={`${base}/sitemap-index.xml`} />
+    <link rel="manifest" href={`${base}/manifest.webmanifest`} >
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="icon" href={`${base}/favicon.ico`} />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;600&display=swap" rel="stylesheet" >
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="keywords" content={keywords} />
 
-    <script is:inline>
+    <script define:vars={{ base }}>
       const theme = localStorage.getItem('theme')
       const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
 
@@ -85,11 +86,12 @@ const metrikaScript = `
 
       if (!localStorage.getItem('locale')) {
         const browserLang = navigator.language.slice(0, 2)
-        const isRuPage = !location.pathname.startsWith('/en')
+        const localPath = location.pathname.slice(base.length)
+        const isRuPage = !localPath.startsWith('/en')
 
         if (browserLang !== 'ru' && isRuPage) {
           localStorage.setItem('locale', 'en')
-          location.replace('/en' + location.pathname)
+          location.replace(base + '/en' + localPath)
         }
         else {
           localStorage.setItem('locale', 'ru')

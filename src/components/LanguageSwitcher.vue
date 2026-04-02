@@ -20,14 +20,15 @@ watch(current, (v) => {
 
   localStorage.setItem('locale', lang)
 
-  const path = window.location.pathname
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  const localPath = window.location.pathname.slice(base.length)
 
   if (lang === 'ru') {
-    window.location.href = path.replace(/^\/en(\/|$)/, '/')
+    window.location.href = base + localPath.replace(/^\/en(\/|$)/, '/')
   }
   else {
-    const clean = path.replace(/^\/en(\/|$)/, '/')
-    window.location.href = '/en' + (clean === '/' ? '/' : clean)
+    const clean = localPath.replace(/^\/en(\/|$)/, '/')
+    window.location.href = base + '/en' + (clean === '/' ? '/' : clean)
   }
 })
 </script>
