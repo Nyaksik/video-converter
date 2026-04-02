@@ -1,43 +1,62 @@
-# Astro Starter Kit: Minimal
+# ClipCrush
 
-```sh
-pnpm create astro@latest -- --template minimal
+Free online video compressor & GIF converter. All processing happens directly in the browser via WebCodecs — no files are uploaded to any server.
+
+## Features
+
+- **Video compression** — MP4, MOV, WebM, MKV with codec selection (H.264, VP9, AV1)
+- **Video to GIF** — customizable FPS, width, color palette, dithering
+- **Batch processing** — compress multiple files at once
+- **100% client-side** — powered by WebCodecs + FFmpeg.wasm fallback
+- **No watermarks, no limits, no sign-up**
+- **PWA** — installable, works offline
+- **i18n** — Russian and English
+
+## Tech Stack
+
+- [Astro 5](https://astro.build) — static site framework
+- [Vue 3](https://vuejs.org) — interactive UI components
+- [Tailwind CSS 4](https://tailwindcss.com) — styling
+- [mediabunny](https://github.com/nicepkg/mediabunny) — WebCodecs video processing
+- [FFmpeg.wasm](https://ffmpegwasm.netlify.app) — fallback encoder
+- [reka-ui](https://reka-ui.com) — headless UI primitives
+- [vite-pwa](https://vite-pwa-org.netlify.app) — PWA support
+
+## Getting Started
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Open [http://localhost:4321](http://localhost:4321).
 
-## 🚀 Project Structure
+## Scripts
 
-Inside of your Astro project, you'll see the following folders and files:
+| Command | Description |
+|-----------------|-------------------------------|
+| `pnpm dev` | Start dev server |
+| `pnpm build` | Production build |
+| `pnpm preview` | Preview production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm lint:fix` | Run ESLint with auto-fix |
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Environment Variables
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+| Variable | Description |
+|----------------------|-------------------------------------------|
+| `PUBLIC_SITE_URL` | Canonical site URL |
+| `PUBLIC_SITE_NAME` | Site name for meta tags |
+| `PUBLIC_INFO_EMAIL` | Contact email in footer |
+| `PUBLIC_METRIKA` | Enable Yandex.Metrika (`true` / `false`) |
+| `BASE_PATH` | Base path for deployment (e.g. `/video-converter`) |
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Deployment
 
-Any static assets, like images, can be placed in the `public/` directory.
+The project auto-deploys to GitHub Pages on push to `main` via `.github/workflows/deploy-pages.yml`.
 
-## 🧞 Commands
+For custom domain deployment, leave `BASE_PATH` empty.
 
-All commands are run from the root of the project, from a terminal:
+## License
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+MIT
