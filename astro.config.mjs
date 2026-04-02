@@ -15,6 +15,7 @@ const {
 // https://astro.build/config
 export default defineConfig({
   site: PUBLIC_SITE_URL,
+  base: '/video-converter',
   i18n: {
     locales: ['ru', 'en'],
     defaultLocale: 'ru',
