@@ -1,35 +1,157 @@
 ---
-import Badge from '@/components/ui/badge/Badge.vue'
+import HomeFaq from '@/components/HomeFaq.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { useTranslations } from '@/i18n'
 import Default from '@/layouts/Default.astro'
 
+import type { WithContext } from 'schema-dts'
+
 const t = useTranslations('ru')
+
+const siteSchema: WithContext<import('schema-dts').WebSite> = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  'name': 'ClipCrush',
+  'url': 'https://clipcrush.online',
+  'description': t('meta.homeDescription'),
+  'inLanguage': 'ru',
+}
+
+const faqSchema: WithContext<import('schema-dts').FAQPage> = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  'mainEntity': [
+    {
+      '@type': 'Question',
+      'name': t('home.faq1Q'),
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': t('home.faq1A'),
+      },
+    },
+    {
+      '@type': 'Question',
+      'name': t('home.faq2Q'),
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': t('home.faq2A'),
+      },
+    },
+    {
+      '@type': 'Question',
+      'name': t('home.faq3Q'),
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': t('home.faq3A'),
+      },
+    },
+    {
+      '@type': 'Question',
+      'name': t('home.faq4Q'),
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': t('home.faq4A'),
+      },
+    },
+    {
+      '@type': 'Question',
+      'name': t('home.faq5Q'),
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': t('home.faq5A'),
+      },
+    },
+  ],
+}
+
+const steps = [
+  {
+    title: t('home.step1Title'),
+    desc: t('home.step1Desc'),
+  },
+  {
+    title: t('home.step2Title'),
+    desc: t('home.step2Desc'),
+  },
+  {
+    title: t('home.step3Title'),
+    desc: t('home.step3Desc'),
+  },
+]
+
+const advantages = [
+  {
+    title: t('home.why1Title'),
+    desc: t('home.why1Desc'),
+  },
+  {
+    title: t('home.why2Title'),
+    desc: t('home.why2Desc'),
+  },
+  {
+    title: t('home.why3Title'),
+    desc: t('home.why3Desc'),
+  },
+  {
+    title: t('home.why4Title'),
+    desc: t('home.why4Desc'),
+  },
+]
 ---
 
-<Default title={t('home.pageTitle')} description={t('meta.homeDescription')} keywords={t('meta.homeKeywords')}>
+<Default title={t('home.pageTitle')} description={t('meta.homeDescription')} keywords={t('meta.homeKeywords')} schema={[siteSchema, faqSchema]}>
   <section class="container py-[5%] max-w-[800px]">
-    <h1 class="text-6xl lg:text-7xl font-bold mb-5 text-center">
+    <h1 class="text-6xl lg:text-7xl font-bold mb-3 text-center">
       {t('home.title')}
     </h1>
-    <div class="flex flex-wrap gap-1 justify-center items-center mb-8">
-      <Badge variant="secondary">
-        {t('home.badge.noWatermarks')}
-      </Badge>
-      <Badge variant="secondary">
-        {t('home.badge.noUpload')}
-      </Badge>
-      <Badge variant="secondary">
-        {t('home.badge.free')}
-      </Badge>
-      <Badge variant="secondary">
-        {t('home.badge.savings')}
-      </Badge>
-    </div>
+    <h2 class="text-xl lg:text-2xl text-muted-foreground text-center mb-5">
+      {t('home.subtitle')}
+    </h2>
     <div class="flex flex-wrap justify-center gap-3">
       <Button as="a" href="/compressor" size="lg" class="text-2xl px-12 h-16">
         {t('home.cta')}
       </Button>
     </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="container max-w-[800px] py-12">
+    <h2 class="text-3xl lg:text-4xl font-bold text-center mb-8">
+      {t('home.howTitle')}
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {steps.map((step, i) => (
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground text-lg font-bold mb-3">
+            {i + 1}
+          </div>
+          <h3 class="text-lg font-bold mb-1">{step.title}</h3>
+          <p class="text-muted-foreground text-sm">{step.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Why ClipCrush -->
+  <section class="container max-w-[800px] py-12">
+    <h2 class="text-3xl lg:text-4xl font-bold text-center mb-8">
+      {t('home.whyTitle')}
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {advantages.map(adv => (
+        <div class="rounded-lg border bg-card p-5">
+          <h3 class="text-lg font-bold mb-1">{adv.title}</h3>
+          <p class="text-muted-foreground text-sm">{adv.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container max-w-[800px] py-12">
+    <h2 class="text-3xl lg:text-4xl font-bold text-center mb-8">
+      {t('home.faqTitle')}
+    </h2>
+    <HomeFaq client:visible lang="ru" />
   </section>
 </Default>
