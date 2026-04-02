@@ -12,6 +12,8 @@ const {
   PUBLIC_SITE_URL, PUBLIC_SITE_NAME, PUBLIC_INFO_EMAIL, PUBLIC_METRIKA, BASE_PATH,
 } = loadEnv(process.env.NODE_ENV ?? '', process.cwd(), '')
 
+const base = BASE_PATH?.replace(/\/$/, '') ?? ''
+
 // https://astro.build/config
 export default defineConfig({
   site: PUBLIC_SITE_URL,
@@ -55,12 +57,12 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: '/web-app-manifest-192x192.png',
+            src: `${base}/web-app-manifest-192x192.png`,
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/web-app-manifest-512x512.png',
+            src: `${base}/web-app-manifest-512x512.png`,
             sizes: '512x512',
             type: 'image/png',
           },
