@@ -21,6 +21,8 @@ export const ui = {
     'nav.logoAlt': 'ClipCrush — онлайн компрессор видео',
     'nav.compressor': 'Сжатие видео',
     'nav.gif': 'Видео в GIF',
+    'nav.menu': 'Меню',
+    'nav.close': 'Закрыть',
 
     // home
     'home.pageTitle': 'Главная',
@@ -140,6 +142,8 @@ export const ui = {
     'nav.logoAlt': 'ClipCrush — online video compressor',
     'nav.compressor': 'Compress video',
     'nav.gif': 'Video to GIF',
+    'nav.menu': 'Menu',
+    'nav.close': 'Close',
 
     'home.pageTitle': 'Home',
     'home.title': 'Compress videos in\u00a0your browser in\u00a0seconds!',

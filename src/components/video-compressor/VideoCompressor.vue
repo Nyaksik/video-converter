@@ -11,7 +11,6 @@ import { computed } from 'vue'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
 import {
   Card,
   CardContent,
@@ -536,7 +535,7 @@ function handleNewBatch() {
                 class="absolute top-0 left-0 h-3 rounded-none"
               />
 
-              <div class="flex flex-wrap justify-between items-center">
+              <div class="flex flex-wrap justify-between items-center gap-2.5">
                 <Badge>
                   <template v-if="status === Status.Processing">
                     {{ t('comp.processing', { progress }) }}
@@ -546,7 +545,10 @@ function handleNewBatch() {
                   </template>
                 </Badge>
                 <Transition>
-                  <ButtonGroup v-if="outputBlob && status === Status.Done">
+                  <div
+                    v-if="outputBlob && status === Status.Done"
+                    class="flex flex-wrap flex-col md:flex-row md:items-center gap-2.5 max-md:w-full"
+                  >
                     <Button @click="downloadVideo">
                       <Download class="size-4" />
                       {{ t('comp.download', { size: formatSize(outputBlob.size) }) }}
@@ -572,7 +574,7 @@ function handleNewBatch() {
                       >
                       {{ t('comp.newVideo') }}
                     </Button>
-                  </ButtonGroup>
+                  </div>
                 </Transition>
               </div>
             </CardContent>
@@ -595,7 +597,7 @@ function handleNewBatch() {
                 class="absolute top-0 left-0 h-3 rounded-none"
               />
 
-              <div class="flex flex-wrap justify-between items-center">
+              <div class="flex flex-wrap justify-between items-center gap-2.5">
                 <Badge>
                   <template v-if="batchStatus === BatchStatus.Processing">
                     {{ t('batch.processing', { done: completedCount, total: totalCount }) }}
@@ -605,7 +607,10 @@ function handleNewBatch() {
                   </template>
                 </Badge>
                 <Transition>
-                  <ButtonGroup v-if="batchStatus === BatchStatus.Done">
+                  <div
+                    v-if="batchStatus === BatchStatus.Done"
+                    class="flex flex-wrap flex-col md:flex-row md:items-center gap-2.5 max-md:w-full"
+                  >
                     <Button @click="downloadAll">
                       <FolderArchive class="size-4" />
                       {{ t('batch.downloadAll', { size: formatSize(totalOutputSize) }) }}
@@ -616,7 +621,7 @@ function handleNewBatch() {
                     >
                       {{ t('batch.newBatch') }}
                     </Button>
-                  </ButtonGroup>
+                  </div>
                 </Transition>
               </div>
             </CardContent>
